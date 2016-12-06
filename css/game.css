@@ -1,0 +1,128 @@
+body, html {
+
+}
+body {
+
+}
+
+#gamearea {
+    width: 594px;
+    height: 600px;
+    border: 1px solid black;
+    position: relative;
+    background: url('../img/painterly.jpg') top center no-repeat;
+}
+
+#board {
+    width: 594px;
+    height: 417px;
+    background: url('../img/board.png');
+    position: absolute;
+    bottom: 0;
+}
+
+#score {
+	position:absolute;
+	top:0;
+    width: 100%;
+    text-align: center;
+	font: bold 50px Helvetica, Arial, sans-serif;
+	color: rgba(255,255,255,0.8);
+}
+
+#bank {
+    width: 100%;
+    height: 150px;
+    background: rgba(255,255,0,0.1);
+    position: relative;
+    display: none;
+}
+
+#bay {
+    width: 120px;
+    height: 120px;
+    border: 1px solid white;
+    border-top: 0;
+    border-left: 0;
+    background: rgba(0,0,0,0.1);
+    position: relative;
+}
+
+#menu {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.tile, .place {
+    width: 108px;
+    height: 90px;
+	position:absolute;
+}
+.place {
+    height: 54px;
+}
+
+.tile.current:hover {
+	cursor: move;
+}
+
+.place {xbackground: rgba(255,0,0,0) url(../img/tiles/place.png) no-repeat;}
+.place.valid:hover {background: url(../img/tiles/place-hover.png) no-repeat;}
+
+#p11 {top: 127px; left: 81px; z-index:4}
+#p12 {top: 181px; left: 81px; z-index:6}
+#p13 {top: 235px; left: 81px; z-index:8}
+
+#p21 {top: 100px; left: 162px; z-index:3}
+#p22 {top: 154px; left: 162px; z-index:5}
+#p23 {top: 208px; left: 162px; z-index:7}
+#p24 {top: 262px; left: 162px; z-index:9}
+
+#p31 {top:  73px; left: 243px; z-index:2}
+#p32 {top: 127px; left: 243px; z-index:4}
+#p33 {top: 181px; left: 243px; z-index:6}
+#p34 {top: 235px; left: 243px; z-index:8}
+#p35 {top: 289px; left: 243px; z-index:10}
+
+#p41 {top: 100px; left: 324px; z-index:3}
+#p42 {top: 154px; left: 324px; z-index:5}
+#p43 {top: 208px; left: 324px; z-index:7}
+#p44 {top: 262px; left: 324px; z-index:9}
+
+#p51 {top: 127px; left: 405px; z-index:4}
+#p52 {top: 181px; left: 405px; z-index:6}
+#p53 {top: 235px; left: 405px; z-index:8}
+
+.edge {
+    background: url(../img/tiles/base-tile.png) no-repeat;
+    padding-top: 35px;
+    padding-left: 45px;
+    color: white;
+}
+
+/* left: */
+#f00 {top: 65px; left: 0px; z-index:3}
+#f01 {top: 119px; left: 0px; z-index:5}
+#f02 {top: 173px; left: 0px; z-index:7}
+#f03 {top: 227px; left: 0px; z-index:9}
+
+/* bottom: */
+#f14 {top: 254px; left: 81px; z-index:10}
+#f25 {top: 281px; left: 162px; z-index:11}
+#f36 {top: 308px; left: 243px; z-index:12}
+#f45 {top: 281px; left: 324px; z-index:11}
+#f54 {top: 254px; left: 405px; z-index:10}
+
+/* right: */
+#f60 {top: 65px; left: 486px; z-index:3}
+#f61 {top: 119px; left: 486px; z-index:5}
+#f62 {top: 173px; left: 486px; z-index:7}
+#f63 {top: 227px; left: 486px; z-index:9}
+
+/* top: */
+#f10 {top: 38px; left: 81px; z-index:2}
+#f20 {top: 11px; left: 162px; z-index:1}
+#f30 {top: -16px; left: 243px; z-index:0}
+#f40 {top: 11px; left: 324px; z-index:1}
+#f50 {top: 38px; left: 405px; z-index:2}

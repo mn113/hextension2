@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Hextension</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/game.css">
+    <script src="js/MooTools-Core-1.6.0.js"></script>
+    <script src="js/MooTools-More-1.6.0-compressed.js"></script>
+    <script src="js/game.js"></script>
+</head>
+
+<body>
+	<div id="gamearea">
+		<div id="board">
+		    <div id="edges">
+                <!-- top: -->
+                <div class="edge tile" id="f10"></div>
+                <div class="edge tile" id="f20"></div>
+                <div class="edge tile" id="f30"></div>
+                <div class="edge tile" id="f40"></div>
+                <div class="edge tile" id="f50"></div>
+                <!-- left: -->
+                <div class="edge tile" id="f00"></div>
+                <div class="edge tile" id="f01"></div>
+                <div class="edge tile" id="f02"></div>
+                <div class="edge tile" id="f03"></div>
+                <!-- right: -->
+                <div class="edge tile" id="f60"></div>
+                <div class="edge tile" id="f61"></div>
+                <div class="edge tile" id="f62"></div>
+                <div class="edge tile" id="f63"></div>
+                <!-- bottom: -->
+                <div class="edge tile" id="f14"></div>
+                <div class="edge tile" id="f25"></div>
+                <div class="edge tile" id="f36"></div>
+                <div class="edge tile" id="f45"></div>
+                <div class="edge tile" id="f54"></div>
+            </div>
+		</div>
+		<div id="bank"></div>
+        <div id="bay"></div>
+        <div id="score">0</div>
+        <div id="menu">
+            <button>Restart game</button><br>
+            <button>Move tile</button><br>
+            <button>Remove tile</button><br>
+            <button>Toggle edges</button>
+            <!-- price list image -->
+        </div>
+	</div>
+</body>
+</html>
