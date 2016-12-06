@@ -30,6 +30,13 @@ body {
 	font: bold 50px Helvetica, Arial, sans-serif;
 	color: rgba(255,255,255,0.8);
 }
+#scorestatus {
+    position: absolute;
+    top: 55px;
+    width: 100%;
+    text-align: center;
+    color: rgba(255,255,255,0.8);
+}
 
 #bank {
     width: 100%;
@@ -66,13 +73,15 @@ body {
 .place {
     height: 54px;
 }
-
+.tile.current {
+    z-index: 20;
+}
 .tile.current:hover {
 	cursor: move;
 }
 
 .place {xbackground: rgba(255,0,0,0) url(../img/tiles/place.png) no-repeat;}
-.place.valid:hover {background: url(../img/tiles/place-hover.png) no-repeat;}
+.place.valid {background: url(../img/tiles/place-hover.png) no-repeat;}
 
 #p11 {top: 127px; left: 81px; z-index:4}
 #p12 {top: 181px; left: 81px; z-index:6}

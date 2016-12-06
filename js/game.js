@@ -26,7 +26,7 @@ var tileCount = 0;
 var boardCoords = [11,12,13,21,22,23,24,31,32,33,34,35,41,42,43,44,51,52,53];
 var edgeCoords =  ['00','01','02','03',10,14,20,25,30,36,40,45,50,54,60,61,62,63];  // ADD 1 to eliminate strings?
 
-var places = {		// could be combined with boardCoords
+var p = {		// could be combined with boardCoords
 	11: {val: [0,0,0], nb: [21,22,12]},
 	12: {val: [0,0,0], nb: [11,22,23,13]},
 	13: {val: [0,0,0], nb: [12,23,24]},
@@ -92,15 +92,7 @@ function genTiles() {
 					//handle: dragHandle,	// might need to define hexagon shape
 					precalculate: true,		// improves performance
 					snap: 10,
-                    onDrag: function(element) {
-                        // Rapid-refresh function runs during drag to take care of z-index issues
-                        dragBlitter = setInterval(function() {
-                            updateZIndex(element);
-                        }, 25); // 40fps refresh
-                    },
 					onDrop: function(element, droppable) {
-                        // End rapid-refresh:
-                        clearInterval(dragBlitter);
 
                         // Can we really drop here?
 						if (!droppable) {
@@ -118,6 +110,7 @@ function genTiles() {
                             element.removeClass('current');
 							// Store the tile's values:
 							storeTile(element,droppable);
+                            stateChange();
 						}
 						else {
 							// Return element to bay:
@@ -138,15 +131,6 @@ function genTiles() {
 			}
 		}
 	}
-}
-
-
-function updateZIndex(tile) {
-    // Make the dragged tile's z-index a function of its y-value:
-    console.log("updateZIndex() running");
-    var y = tile.getStyle("top");
-    console.log(y);
-    tile.setStyle("z-index", parseInt(y,10));
 }
 
 
@@ -172,6 +156,38 @@ function genBoard() {
 		//  Insert into document:
 		edge.inject($('edges'), 'bottom');
 	}
+}
+
+
+/*********************/
+/*! VISUAL FUNCTIONS */
+/*********************/
+function setStatus() {
+    var statuses = {
+        10: 'Getting going...',
+        30: 'Looking good...',
+        50: 'Nice work!',
+        70: 'Cha-ching!',
+        90: 'Keep it coming!',
+        110: 'Make it rain baby!',
+        150: 'You da man!',
+        200: 'Mastering it...',
+        300: 'Hex fiend!',
+        500: 'Hexual Ceiling!'
+    };
+    var status = "";
+    // Find our current level:
+    Object.keys(statuses).forEach(function (key) {
+        if (totalScore < key) return;
+        status = statuses[key];     // Will be set to the highest entry our score exceeds
+    });
+    // Apply to page:
+    $('scorestatus').set('text', status);
+}
+
+
+function showMessage(msg) {
+    $('message').set('text', msg);  // TODO: Make it slide up, fade in, and go away
 }
 
 
@@ -214,19 +230,19 @@ function findValidPlaces() {
 		$$('#board .place').removeClass('valid');
 
 		var fl = filledPlaces.length;
-		// Combine all the sets of neighbours					// USE .each FUNCTION MORE HERE; OR FOR...IN
+		// Combine all the sets of neighbours
 		for (var i=0; i < fl; i++) {
 			validPlaces.combine(p[filledPlaces[i]].nb);
 		}
 		// Then erase the already filled places
-		for (var i=0; i < fl; i++) {
+		for (var j=0; j < fl; j++) {
 			validPlaces.erase(filledPlaces[i]);
 		}
 		var vl = validPlaces.length;
 		// Convert the locations (e.g. '11') to HTML elements (<div id="p11"...)
-		for (var i=0; i < vl; i++) {
-			$('p'+validPlaces[i]).addClass('valid');
-		}
+		validPlaces.forEach(function(id) {
+			$('p'+id).addClass('valid');
+		});
 	}
 //	console.log("Valid places:");
 //	console.log(validPlaces);
@@ -236,6 +252,17 @@ function springBack(tile) {
 	var animation = new Fx.Morph(tile,{duration: 300});
 	animation.start({'top': 0, 'left': 0});
 	console.log('Sproing!');
+}
+
+
+function stateChange() {
+    if (tileCount === 19) {
+        // Finishing bonus:
+        hiddenScore += 50;
+    }
+    calcScore();
+    displayNonZeroScores();
+    setStatus();
 }
 
 
@@ -254,37 +281,59 @@ var scores = {
 	z1:0, z2:0, z3:0, z4:0, z5:0
 };
 
+var linesScore = 0;
+var hiddenScore = 0;
 var totalScore = 0;
+
+
+function lineSum(tiles, prop) {
+    // Zeros are not valid:
+    if (tiles[0].val[prop] === 0) return 0;
+    // Check all against first:
+    for (var i = 1; i < tiles.length; i++) {
+        if (tiles[i].val[prop] !== tiles[0].val[prop]) return 0;
+    }
+    // All were equal if we got this far:
+    return tileSum(tiles, prop);
+}
+
+
+function tileSum(tiles, prop) {
+    var sum = tiles[0].val[prop];
+    // Add all to first:
+    for (var i = 1; i < tiles.length; i++) {
+        sum += tiles[i].val[prop];
+    }
+    // All were equal if we got this far:
+    return sum;
+}
+
 
 function calcScore() {
 
-	// Zero any incomplete scoreLines:
-    // TODO: REFACTOR!
-	scores.x1 = (p[11].val[0] == p[12].val[0] && p[12].val[0] == p[13].val[0]) ? p[11].val[0] + p[12].val[0] + p[13].val[0] : 0;	// sum the line if all equal
-	scores.x2 = (p[21].val[0] == p[22].val[0] && p[22].val[0] == p[23].val[0] && p[23].val[0] == p[24].val[0]) ? p[21].val[0] + p[22].val[0] + p[23].val[0] + p[24].val[0] : 0;
-	scores.x3 = (p[31].val[0] == p[32].val[0] && p[32].val[0] == p[33].val[0] && p[33].val[0] == p[34].val[0] && p[34].val[0] == p[35].val[0]) ? p[31].val[0] + p[32].val[0] + p[33].val[0] + p[34].val[0] + p[35].val[0] : 0;
-	scores.x4 = (p[41].val[0] == p[42].val[0] && p[42].val[0] == p[43].val[0] && p[43].val[0] == p[44].val[0]) ? p[41].val[0] + p[42].val[0] + p[43].val[0] + p[44].val[0] : 0;
-	scores.x5 = (p[51].val[0] == p[52].val[0] && p[52].val[0] == p[53].val[0]) ? p[51].val[0] + p[52].val[0] + p[53].val[0] : 0;
+    scores.x1 = lineSum([p[11], p[12], p[13]], 0);
+    scores.x2 = lineSum([p[21], p[22], p[23], p[24]], 0);
+    scores.x3 = lineSum([p[31], p[32], p[33], p[34], p[35]], 0);
+    scores.x4 = lineSum([p[41], p[42], p[43], p[44]], 0);
+    scores.x5 = lineSum([p[51], p[52], p[53]], 0);
 
-	scores.y1 = (p[31].val[1] == p[41].val[1] && p[41].val[1] == p[51].val[1]) ? p[31].val[1] + p[41].val[1] + p[51].val[1] : 0;
-	scores.y2 = (p[21].val[1] == p[32].val[1] && p[32].val[1] == p[42].val[1] && p[42].val[1] == p[52].val[1]) ? p[21].val[1] + p[32].val[1] + p[42].val[1] + p[52].val[1] : 0;
-	scores.y3 = (p[11].val[1] == p[22].val[1] && p[22].val[1] == p[33].val[1] && p[33].val[1] == p[43].val[1] && p[43].val[1] == p[53].val[1]) ? p[11].val[1] + p[22].val[1] + p[33].val[1] + p[43].val[1] + p[53].val[1] : 0;
-	scores.y4 = (p[12].val[1] == p[23].val[1] && p[23].val[1] == p[34].val[1] && p[34].val[1] == p[44].val[1]) ? p[12].val[1] + p[23].val[1] + p[34].val[1] + p[44].val[1] : 0;
-	scores.y5 = (p[13].val[1] == p[24].val[1] && p[24].val[1] == p[35].val[1]) ? p[13].val[1] + p[24].val[1] + p[35].val[1] : 0;
+    scores.y1 = lineSum([p[31], p[41], p[51]], 1);
+    scores.y2 = lineSum([p[21], p[32], p[42], p[52]], 1);
+    scores.y3 = lineSum([p[11], p[22], p[33], p[43], p[53]], 1);
+    scores.y4 = lineSum([p[12], p[23], p[34], p[44]], 1);
+    scores.y5 = lineSum([p[13], p[24], p[35]], 1);
 
-	scores.z1 = (p[11].val[2] == p[21].val[2] && p[21].val[2] == p[31].val[2]) ? p[11].val[2] + p[21].val[2] + p[31].val[2] : 0;
-	scores.z2 = (p[12].val[2] == p[22].val[2] && p[22].val[2] == p[32].val[2] && p[32].val[2] == p[41].val[2]) ? p[12].val[2] + p[22].val[2] + p[32].val[2] + p[41].val[2] : 0;
-	scores.z3 = (p[13].val[2] == p[23].val[2] && p[23].val[2] == p[33].val[2] && p[33].val[2] == p[42].val[2] && p[42].val[2] == p[51].val[2]) ? p[13].val[2] + p[23].val[2] + p[33].val[2] + p[42].val[2] + p[51].val[2] : 0;
-	scores.z4 = (p[24].val[2] == p[34].val[2] && p[34].val[2] == p[43].val[2] && p[43].val[2] == p[52].val[2]) ? p[24].val[2] + p[34].val[2] + p[43].val[2] + p[52].val[2] : 0;
-	scores.z5 = (p[35].val[2] == p[44].val[2] && p[44].val[2] == p[53].val[2]) ? p[35].val[2] + p[44].val[2] + p[53].val[2] : 0;
+    scores.z1 = lineSum([p[11], p[21], p[31]], 2);
+    scores.z2 = lineSum([p[12], p[22], p[32], p[41]], 2);
+    scores.z3 = lineSum([p[13], p[23], p[33], p[42], p[51]], 2);
+    scores.z4 = lineSum([p[24], p[34], p[43], p[52]], 2);
+    scores.z5 = lineSum([p[35], p[44], p[53]], 2);
 
 	// Reset and re-tally score:
-	totalScore = 0;
+	linesScore = 0;
 	for (var i in scores) {
-		totalScore += scores[i];
+		linesScore += scores[i];
 	}
-
-    displayNonZeroScores();
 }
 
 function displayNonZeroScores() {
@@ -318,6 +367,7 @@ function displayNonZeroScores() {
     });
 
     // Display main score:
+    totalScore = linesScore + hiddenScore;
 	$('score').set('text', '$' + totalScore);
 }
 
