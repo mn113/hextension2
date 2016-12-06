@@ -245,29 +245,37 @@ function calcScore() {
 	scores.z5 = (p[35].val[2] == p[44].val[2] && p[44].val[2] == p[53].val[2]) ? p[35].val[2] + p[44].val[2] + p[53].val[2] : 0;
 
     // Display line scores on edge tiles:
-    $('f10').set('text', '$' + scores.x1);
-    $('f20').set('text', '$' + scores.x2);
-    $('f30').set('text', '$' + scores.x3);
-    $('f40').set('text', '$' + scores.x4);
-    $('f50').set('text', '$' + scores.x5);
+    $('f10').set('text', scores.x1 > 0 ? '$' + scores.x1 : '');
+    $('f20').set('text', scores.x2 > 0 ? '$' + scores.x2 : '');
+    $('f30').set('text', scores.x3 > 0 ? '$' + scores.x3 : '');
+    $('f40').set('text', scores.x4 > 0 ? '$' + scores.x4 : '');
+    $('f50').set('text', scores.x5 > 0 ? '$' + scores.x5 : '');
 
-    $('f61').set('text', '$' + scores.y1);
-    $('f62').set('text', '$' + scores.y2);
-    $('f63').set('text', '$' + scores.y3);
-    $('f54').set('text', '$' + scores.y4);
-    $('f45').set('text', '$' + scores.y5);
+    $('f61').set('text', scores.y1 > 0 ? '$' + scores.y1 : '');
+    $('f62').set('text', scores.y2 > 0 ? '$' + scores.y2 : '');
+    $('f63').set('text', scores.y3 > 0 ? '$' + scores.y3 : '');
+    $('f54').set('text', scores.y4 > 0 ? '$' + scores.y4 : '');
+    $('f45').set('text', scores.y5 > 0 ? '$' + scores.y5 : '');
 
-    $('f01').set('text', '$' + scores.z1);
-    $('f02').set('text', '$' + scores.z2);
-    $('f03').set('text', '$' + scores.z3);
-    $('f14').set('text', '$' + scores.z4);
-    $('f25').set('text', '$' + scores.z5);
+    $('f01').set('text', scores.z1 > 0 ? '$' + scores.z1 : '');
+    $('f02').set('text', scores.z2 > 0 ? '$' + scores.z2 : '');
+    $('f03').set('text', scores.z3 > 0 ? '$' + scores.z3 : '');
+    $('f14').set('text', scores.z4 > 0 ? '$' + scores.z4 : '');
+    $('f25').set('text', scores.z5 > 0 ? '$' + scores.z5 : '');
 
+    $$('.edge').forEach(function() { // UNTESTED
+        if ($(this).get('text').length > 0) {
+            $(this).addClass('scoring');
+        }
+        else {
+            $(this).removeClass('scoring');
+        }
+    });
 
-	console.log("Scores:");
-	console.log("x: "+scores.x1+', '+scores.x2+', '+scores.x3+', '+scores.x4+', '+scores.x5);
-	console.log("y: "+scores.y1+', '+scores.y2+', '+scores.y3+', '+scores.y4+', '+scores.y5);
-	console.log("z: "+scores.z1+', '+scores.z2+', '+scores.z3+', '+scores.z4+', '+scores.z5);
+//	console.log("Scores:");
+//	console.log("x: "+scores.x1+', '+scores.x2+', '+scores.x3+', '+scores.x4+', '+scores.x5);
+//	console.log("y: "+scores.y1+', '+scores.y2+', '+scores.y3+', '+scores.y4+', '+scores.y5);
+//	console.log("z: "+scores.z1+', '+scores.z2+', '+scores.z3+', '+scores.z4+', '+scores.z5);
 
 	// Reset and re-tally score:
 	totalScore = 0;

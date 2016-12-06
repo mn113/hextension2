@@ -10,13 +10,14 @@ body {
     height: 600px;
     border: 1px solid black;
     position: relative;
-    background: url('../img/painterly.jpg') top center no-repeat;
+    background: url(../img/skies.jpg) top center no-repeat;
+    background-size: cover;
 }
 
 #board {
     width: 594px;
     height: 417px;
-    background: url('../img/board.png');
+    background: url(../img/board.png);
     position: absolute;
     bottom: 0;
 }
@@ -46,6 +47,9 @@ body {
     border-left: 0;
     background: rgba(0,0,0,0.1);
     position: relative;
+    color: white;
+    text-transform: uppercase;
+    text-align: center;
 }
 
 #menu {
@@ -101,11 +105,26 @@ body {
     color: white;
 }
 
+/* top: */
+#f10 {top: 38px; left: 81px; z-index:2}
+#f20 {top: 11px; left: 162px; z-index:1}
+#f30 {top: -16px; left: 243px; z-index:0}
+#f40 {top: 11px; left: 324px; z-index:1}
+#f50 {top: 38px; left: 405px; z-index:2}
+
 /* left: */
 #f00 {top: 65px; left: 0px; z-index:3}
 #f01 {top: 119px; left: 0px; z-index:5}
 #f02 {top: 173px; left: 0px; z-index:7}
 #f03 {top: 227px; left: 0px; z-index:9}
+
+#f20.scoring,
+#f10.scoring,
+#f00.scoring,
+#f01.scoring,
+#f02.scoring {
+    background: url(../img/tiles/base-tile-rarrow.png)
+}
 
 /* bottom: */
 #f14 {top: 254px; left: 81px; z-index:10}
@@ -114,15 +133,24 @@ body {
 #f45 {top: 281px; left: 324px; z-index:11}
 #f54 {top: 254px; left: 405px; z-index:10}
 
+#f14.scoring,
+#f25.scoring,
+#f36.scoring,
+#f45.scoring,
+#f54.scoring {
+    background: url(../img/tiles/base-tile-uparrow.png)
+}
+
 /* right: */
 #f60 {top: 65px; left: 486px; z-index:3}
 #f61 {top: 119px; left: 486px; z-index:5}
 #f62 {top: 173px; left: 486px; z-index:7}
 #f63 {top: 227px; left: 486px; z-index:9}
 
-/* top: */
-#f10 {top: 38px; left: 81px; z-index:2}
-#f20 {top: 11px; left: 162px; z-index:1}
-#f30 {top: -16px; left: 243px; z-index:0}
-#f40 {top: 11px; left: 324px; z-index:1}
-#f50 {top: 38px; left: 405px; z-index:2}
+#f40.scoring,
+#f50.scoring,
+#f60.scoring,
+#f61.scoring,
+#f62.scoring {
+    background: url(../img/tiles/base-tile-larrow.png)
+}
