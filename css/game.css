@@ -123,7 +123,7 @@ body {
 #f00.scoring,
 #f01.scoring,
 #f02.scoring {
-    background: url(../img/tiles/base-tile-rarrow.png)
+    background: url(../img/tiles/base-tile-rarrow.png) no-repeat;
 }
 
 /* bottom: */
@@ -138,7 +138,7 @@ body {
 #f36.scoring,
 #f45.scoring,
 #f54.scoring {
-    background: url(../img/tiles/base-tile-uparrow.png)
+    background: url(../img/tiles/base-tile-uparrow.png) no-repeat;
 }
 
 /* right: */
@@ -152,5 +152,5 @@ body {
 #f60.scoring,
 #f61.scoring,
 #f62.scoring {
-    background: url(../img/tiles/base-tile-larrow.png)
+    background: url(../img/tiles/base-tile-larrow.png) no-repeat;
 }
