@@ -23,9 +23,10 @@ var tileSetup = {
 
 var tileCount = 0;
 
-var boardCoords = [11,12,13,21,22,23,24,31,32,33,34,35,41,42,43,44,51,52,53];   // p.keys() ?
+var boardCoords = [11,12,13,21,22,23,24,31,32,33,34,35,41,42,43,44,51,52,53];
+var edgeCoords =  ['00','01','02','03',10,14,20,25,30,36,40,45,50,54,60,61,62,63];  // ADD 1 to eliminate strings?
 
-var p = {		// could be combined with boardCoords
+var places = {		// could be combined with boardCoords
 	11: {val: [0,0,0], nb: [21,22,12]},
 	12: {val: [0,0,0], nb: [11,22,23,13]},
 	13: {val: [0,0,0], nb: [12,23,24]},
@@ -78,9 +79,11 @@ function genTiles() {
 
 				//  Insert into document:
 				var bank = $('bank');
-				tile.inject(bank, 'bottom');
+				tile.inject(bank, 'bottom');    // LOOP SHOULD END HERE
 
 				var gamearea = $('gamearea');
+
+                var dragBlitter;    // setInterval holder
 
 				// Set up draggability:
 				var tileDrag = new Drag.Move(tile, {
@@ -89,8 +92,17 @@ function genTiles() {
 					//handle: dragHandle,	// might need to define hexagon shape
 					precalculate: true,		// improves performance
 					snap: 10,
+                    onDrag: function(element) {
+                        // Rapid-refresh function runs during drag to take care of z-index issues
+                        dragBlitter = setInterval(function() {
+                            updateZIndex(element);
+                        }, 25); // 40fps refresh
+                    },
 					onDrop: function(element, droppable) {
+                        // End rapid-refresh:
+                        clearInterval(dragBlitter);
 
+                        // Can we really drop here?
 						if (!droppable) {
 							//tileDrag.stop();
 							springBack(element);
@@ -103,6 +115,7 @@ function genTiles() {
 			            	// Drop it:
 				            console.log(element.get('id')+' dropped into '+droppable.get('id'));
 			                element.inject(droppable);
+                            element.removeClass('current');
 							// Store the tile's values:
 							storeTile(element,droppable);
 						}
@@ -127,16 +140,37 @@ function genTiles() {
 	}
 }
 
+
+function updateZIndex(tile) {
+    // Make the dragged tile's z-index a function of its y-value:
+    console.log("updateZIndex() running");
+    var y = tile.getStyle("top");
+    console.log(y);
+    tile.setStyle("z-index", parseInt(y,10));
+}
+
+
 function genBoard() {
-	for (var a=0, t=boardCoords.length; a < t; a++) {	// FOR (A IN BOARDCOORDS)?
-		var placeID = boardCoords[a];
+    // Places:
+	for (var a=0; a < boardCoords.length; a++) {
 		// Create html element:
 		var place = new Element('div', {
-		    'id': 'p'+placeID,
+		    'id': 'p'+boardCoords[a],
 		    'class': 'place valid',
 		});
 		//  Insert into document:
 		place.inject($('board'), 'bottom');
+	}
+
+    // Edge tiles:
+    for (var b=0; b < edgeCoords.length; b++) {
+		// Create html element:
+		var edge = new Element('div', {
+		    'id': 'f'+edgeCoords[b],
+		    'class': 'tile edge',
+		});
+		//  Insert into document:
+		edge.inject($('edges'), 'bottom');
 	}
 }
 
