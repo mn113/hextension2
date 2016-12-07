@@ -1,12 +1,6 @@
 /***************/
 /*! GAME SETUP */
 /***************/
-var tileSetup = {
-	x: [1,5,9],		// water, sewage, oil
-	y: [3,4,8],		// canal, pylons, cable
-	z: [2,6,7]		// path, road, rail
-};
-
 /* Board layout:
            ____
       ____/ 31 \____
@@ -46,6 +40,12 @@ var p = {		// could be combined with boardCoords
 	51: {val: [0,0,0], nb: [41,42,52]},
 	52: {val: [0,0,0], nb: [51,42,43,53]},
 	53: {val: [0,0,0], nb: [44,43,52]}
+};
+
+var tileSetup = {
+	x: [1,5,9],		// water, sewage, oil
+	y: [3,4,8],		// canal, pylons, cable
+	z: [2,6,7]		// path, road, rail
 };
 
 
@@ -187,7 +187,21 @@ function setStatus() {
 
 
 function showMessage(msg) {
-    $('message').set('text', msg);  // TODO: Make it slide up, fade in, and go away
+    // Create a new message <p> element:
+    var para = new Element('p', {
+        styles: { 'opacity': 0, 'margin-top': '20px' },
+        html: msg
+    }).inject($('messages'));
+
+    var anim = new Fx.Morph(para, {duration: 500});
+    // Fade in & slide up:
+	anim.start({ 'opacity': 1, 'margin-top': 0 })
+        .chain(function() {
+            // Fade away:
+            this.start.delay(2000, this, { 'opacity': 0 });
+        }).chain(function() {
+            para.destroy();
+        });
 }
 
 
@@ -244,8 +258,6 @@ function findValidPlaces() {
 			$('p'+id).addClass('valid');
 		});
 	}
-//	console.log("Valid places:");
-//	console.log(validPlaces);
 }
 
 function springBack(tile) {
@@ -253,7 +265,6 @@ function springBack(tile) {
 	animation.start({'top': 0, 'left': 0});
 	console.log('Sproing!');
 }
-
 
 function stateChange() {
     if (tileCount === 19) {
@@ -263,6 +274,7 @@ function stateChange() {
     calcScore();
     displayNonZeroScores();
     setStatus();
+    showMessage(tileCount + " tiles played");
 }
 
 
@@ -285,7 +297,6 @@ var linesScore = 0;
 var hiddenScore = 0;
 var totalScore = 0;
 
-
 function lineSum(tiles, prop) {
     // Zeros are not valid:
     if (tiles[0].val[prop] === 0) return 0;
@@ -297,7 +308,6 @@ function lineSum(tiles, prop) {
     return tileSum(tiles, prop);
 }
 
-
 function tileSum(tiles, prop) {
     var sum = tiles[0].val[prop];
     // Add all to first:
@@ -307,7 +317,6 @@ function tileSum(tiles, prop) {
     // All were equal if we got this far:
     return sum;
 }
-
 
 function calcScore() {
 
@@ -371,15 +380,13 @@ function displayNonZeroScores() {
 	$('score').set('text', '$' + totalScore);
 }
 
+
 /*************/
 /*! DOMREADY */
 /*************/
 // Mootools document ready:
 window.addEvent('domready', function() {
-
 	genBoard();
 	genTiles();
-	calcScore();
 	chooseTile();
-
 });

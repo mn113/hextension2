@@ -5,7 +5,7 @@
     <title>Hextension</title>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/game.css">
-    <script src="js/MooTools-Core-1.6.0.js"></script>
+    <!--script src="js/MooTools-Core-1.6.0.js"></script-->
     <script src="js/MooTools-More-1.6.0-compressed.js"></script>
     <script src="js/game.js"></script>
 </head>
@@ -17,13 +17,15 @@
         <div id="messages"></div>
 		<div id="bank"></div>
         <div id="bay">Next Hex</div>
-        <div id="menu">
-            <button>Restart game</button><br>
-            <button>Move tile</button><br>
-            <button>Remove tile</button><br>
-            <button>Undo</button><br>
-            <button onclick="$('edges').toggle()">Toggle edges</button>
-            <!-- price list image -->
+        <div id="menu" onclick="$(this).toggleClass('open')">
+            <ul id="menu_contents">
+                <li><a onclick="window.location.reload();">Restart game</a></li>
+                <li><a>Move tile</a></li>
+                <li><a>Remove tile</a></li>
+                <li><a>Undo</a></li>
+                <li><a onclick="$('edges').toggle()">Toggle edges</li>
+                <!-- price list image -->
+            </ul>
         </div>
         <div id="board">
 		    <div id="edges"></div>
