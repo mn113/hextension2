@@ -48,12 +48,14 @@ var tileSetup = {
 	z: [2,6,7]		// path, road, rail
 };
 
+var gamearea = $('gamearea');
+
 
 /******************/
 /*! GENERATE GAME */
 /******************/
 function genTiles() {
-	// Generate the 27 tiles:
+	// Generate the 27 possible tiles:
 	for (var a=0, xl=tileSetup.x.length; a < xl; a++) {
 		for (var b=0, yl=tileSetup.y.length; b < yl; b++) {
 			for (var c=0, zl=tileSetup.z.length; c < zl; c++) {
@@ -66,7 +68,7 @@ function genTiles() {
 				var trand = Math.floor(100*Math.random());
 				var lrand = Math.floor(110 + 400*Math.random());
 
-				// Create the html element:
+				// Create the tile's html element:
 				var tile = new Element('div', {
 				    'id': 't'+tileID,
 				    'class': 'tile',
@@ -79,60 +81,11 @@ function genTiles() {
 
 				//  Insert into document:
 				var bank = $('bank');
-				tile.inject(bank, 'bottom');    // LOOP SHOULD END HERE
-
-				var gamearea = $('gamearea');
-
-                var dragBlitter;    // setInterval holder
-
-				// Set up draggability:
-				var tileDrag = new Drag.Move(tile, {
-					droppables: $$('#board .place.valid'), // $('bank')
-					container: gamearea,
-					//handle: dragHandle,	// might need to define hexagon shape
-					precalculate: true,		// improves performance
-					snap: 10,
-					onDrop: function(element, droppable) {
-
-                        // Can we really drop here?
-						if (!droppable) {
-							//tileDrag.stop();
-							springBack(element);
-						}
-						// If dropped on board place:
-			            else if (droppable.hasClass('valid')) {
-			                // Remove draggability:
-							//tileDrag.stop();
-							tile.removeClass('current');
-			            	// Drop it:
-				            console.log(element.get('id')+' dropped into '+droppable.get('id'));
-			                element.inject(droppable);
-                            element.removeClass('current');
-							// Store the tile's values:
-							storeTile(element,droppable);
-                            stateChange();
-						}
-						else {
-							// Return element to bay:
-							//tileDrag.stop();
-							springBack(element);
-						}
-						// Zero tile position whether in bay or in board place:
-			            element.setStyles({
-						    'top': '-36px',
-						    'left': 0
-						});
-					},
-		            onComplete: function(el) {
-						//console.log(el.get('id')+' drag complete');
-						//springBack(element);
-					}
-				});
-			}
-		}
-	}
+				tile.inject(bank, 'bottom');
+            }
+    	}
+    }
 }
-
 
 function genBoard() {
     // Places:
@@ -156,6 +109,76 @@ function genBoard() {
 		//  Insert into document:
 		edge.inject($('edges'), 'bottom');
 	}
+}
+
+
+/*******************/
+/*! TILE FUNCTIONS */
+/*******************/
+function makeDraggable(tile) {
+	// Set up draggability:
+	var tileDrag = new Drag.Move(tile, {
+		droppables: $$('#board .place.valid'), // $('bank')
+		container: gamearea,
+		//handle: dragHandle,	// might need to define hexagon shape
+		precalculate: true,		// improves performance
+		snap: 10,
+		onDrop: function(element, droppable) {
+
+            // Can we really drop here?
+			if (!droppable) {
+				//tileDrag.stop();
+				springBack(element);
+			}
+			// If dropped on board place:
+            else if (droppable.hasClass('valid')) {
+                // Remove draggability:
+				//tileDrag.stop();
+            	tileDrag.detach();
+                // Drop it:
+	            console.log(element.get('id')+' dropped into '+droppable.get('id'));
+                element.inject(droppable);
+                element.removeClass('current');
+				// Store the tile's values:
+				storeTile(element,droppable);
+                stateChange();
+			}
+			else {
+				// Return element to bay:
+				//tileDrag.stop();
+				springBack(element);
+			}
+			// Zero tile position whether in bay or in board place:
+            element.setStyles({
+			    'top': '-36px',
+			    'left': 0
+			});
+		},
+        onComplete: function(el) {
+			//console.log(el.get('id')+' drag complete');
+			//springBack(element);
+		}
+	});
+}
+
+function springBack(tile) {
+	var animation = new Fx.Morph(tile,{duration: 300});
+	animation.start({'top': 0, 'left': 0});
+	console.log('Sproing!');
+}
+
+function chooseTile() {
+	var tiles = $$('#bank .tile');
+	var myTile = tiles.getRandom();
+	console.log(myTile);
+	// Transfer chosen tile to the bay & make fully draggable:
+	myTile.inject($('bay'), 'top')
+		  .addClass('current')
+		  .setStyles({
+			'top':'10px',
+			'left':'4px'
+		  });
+    makeDraggable(myTile);
 }
 
 
@@ -185,7 +208,6 @@ function setStatus() {
     $('scorestatus').set('text', status);
 }
 
-
 function showMessage(msg) {
     // Create a new message <p> element:
     var para = new Element('p', {
@@ -205,36 +227,9 @@ function showMessage(msg) {
 }
 
 
-/*******************/
-/*! PLAY FUNCTIONS */
-/*******************/
-function chooseTile() {
-	var tiles = $$('#bank .tile');
-	var myTile = tiles.getRandom();
-	console.log(myTile);
-	// Transfer chosen tile to the bay & make fully draggable:
-	myTile.inject($('bay'), 'top')
-		  .addClass('current')
-		  .setStyles({
-			'top':'10px',
-			'left':'4px'
-		  });
-}
-
-function storeTile(element,droppable) {
-	var values = element.get('id').substr(1,3);		// e.g. 132
-	var location = droppable.get('id').substr(1,2); // e.g. 53
-	console.log("Attempt to store "+values[0]+", "+values[1]+" and "+values[2]+" in "+location);
-	for (var i=0; i<3; i++) {
-		p[location].val[i] = parseInt(values[i]);	// CORRECTLY ACCESSED?
-	}
-	calcScore();
-	tileCount++;
-	if (tileCount < 19) chooseTile();
-	filledPlaces.push(parseInt(location));
-	findValidPlaces();
-}
-
+/********************/
+/*! BOARD FUNCTIONS */
+/********************/
 var validPlaces = [];
 var filledPlaces = [];	// add to it each turn
 
@@ -250,9 +245,8 @@ function findValidPlaces() {
 		}
 		// Then erase the already filled places
 		for (var j=0; j < fl; j++) {
-			validPlaces.erase(filledPlaces[i]);
+			validPlaces.erase(filledPlaces[j]);
 		}
-		var vl = validPlaces.length;
 		// Convert the locations (e.g. '11') to HTML elements (<div id="p11"...)
 		validPlaces.forEach(function(id) {
 			$('p'+id).addClass('valid');
@@ -260,10 +254,18 @@ function findValidPlaces() {
 	}
 }
 
-function springBack(tile) {
-	var animation = new Fx.Morph(tile,{duration: 300});
-	animation.start({'top': 0, 'left': 0});
-	console.log('Sproing!');
+function storeTile(element, droppable) {
+	var values = element.get('id').substr(1,3);		// e.g. 132
+	var location = droppable.get('id').substr(1,2); // e.g. 53
+	//console.log("Attempt to store "+values[0]+", "+values[1]+" and "+values[2]+" in "+location);
+	for (var i=0; i<3; i++) {
+		p[location].val[i] = parseInt(values[i]);	// CORRECTLY ACCESSED?
+	}
+	calcScore();
+	tileCount++;
+	if (tileCount < 19) chooseTile();
+	filledPlaces.push(parseInt(location));
+	findValidPlaces();
 }
 
 function stateChange() {
@@ -292,7 +294,6 @@ var scores = {
 	y1:0, y2:0, y3:0, y4:0, y5:0,
 	z1:0, z2:0, z3:0, z4:0, z5:0
 };
-
 var linesScore = 0;
 var hiddenScore = 0;
 var totalScore = 0;

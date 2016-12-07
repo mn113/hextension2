@@ -23,9 +23,22 @@
                 <li><a>Move tile</a></li>
                 <li><a>Remove tile</a></li>
                 <li><a>Undo</a></li>
-                <li><a onclick="$('edges').toggle()">Toggle edges</li>
-                <!-- price list image -->
+                <li><a onclick="$('edges').toggle()">Toggle edges</a></li>
             </ul>
+        </div>
+        <div id="prices" onclick="$(this).toggleClass('open')">
+            <h6>Tile values</h6>
+            <dl id="pricelist">
+                <dt>Water</dt><dd>$10</dd>
+                <dt>Path</dt><dd>$20</dd>
+                <dt>Canal</dt><dd>$30</dd>
+                <dt>Elec.</dt><dd>$40</dd>
+                <dt>Sewage</dt><dd>$50</dd>
+                <dt>Road</dt><dd>$60</dd>
+                <dt>Rail</dt><dd>$70</dd>
+                <dt>Data</dt><dd>$80</dd>
+                <dt>Oil</dt><dd>$90</dd>
+            </dl>
         </div>
         <div id="board">
 		    <div id="edges"></div>

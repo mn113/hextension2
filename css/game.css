@@ -4,6 +4,10 @@ body, html {
 body {
 }
 
+
+/*
+ * LAYOUT
+ */
 #gamearea {
     position: relative;
     width: 594px;
@@ -22,7 +26,7 @@ body {
     bottom: 0;
     width: 594px;
     height: 417px;
-    background: url(../img/board.png);
+    background: url(../img/board-blank.png) no-repeat;
 }
 
 #score {
@@ -37,17 +41,14 @@ body {
     top: 55px;
     width: 100%;
 }
-
 #messages {
     position: absolute;
     top: 75px;
     width: 100%;
 }
-
 #bank {
     display: none;
 }
-
 #bay {
     position: relative;
     width: 120px;
@@ -59,26 +60,86 @@ body {
     text-transform: uppercase;
 }
 
+
+/*
+ * MENU STUFF
+ */
 #menu {
     position: absolute;
     top: 5px;
     right: 5px;
+    z-index: 20;
     text-align: right;
     background: url(../img/menu48.png) top right no-repeat;
     min-width: 48px;
     min-height: 48px;
 }
 #menu.open {
-    background: none;
+    background: rgba(0,0,0,0.1);
+    xwidth: 160px;
+    padding-right: 8px;
 }
 ul#menu_contents {
     display: none;
     list-style: none;
+    line-height: 18px;
 }
-#menu.open ul#menu_contents {
+#menu.open > ul#menu_contents { display: block; }
+ul#menu_contents a {
     display: block;
+    padding: 3px 5px;
+    border: 1px solid transparent;
+}
+ul#menu_contents a:hover {
+    cursor: pointer;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid white;
+    color: pink;
 }
 
+
+/*
+ * SECOND MENU
+ */
+#prices {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    z-index: 20;
+    background: url(../img/menu48.png) top right no-repeat;
+    min-width: 48px;
+    min-height: 48px;
+}
+#prices > * { display: none; }
+#prices.open > * { display: block; }
+#prices.open {
+    background: rgba(127,127,127,0.7);
+    padding: 0 10px;
+}
+dl#pricelist {
+    padding-left: 24px;
+    background: url(../img/categories.png) no-repeat;
+    text-transform: full-width;
+    line-height: 24px;
+}
+#prices h6 {
+    text-align: center;
+    line-height: 14px;
+    font-size: 14px;
+}
+dt {
+	float: left;
+	clear: left;
+	margin-left: 10px;
+}
+dd {
+	margin-left: 75px;
+}
+
+
+/*
+ * BOARD STUFF
+ */
 .tile, .place {
     width: 108px;
     height: 90px;
@@ -124,7 +185,7 @@ ul#menu_contents {
 .edge {
     background: url(../img/tiles/base-tile.png) no-repeat;
     padding-top: 35px;
-    padding-left: 45px;
+    xpadding-left: 45px;
 }
 
 /* top: */
