@@ -57,7 +57,7 @@ var lastTile;
 /******************/
 /*! GENERATE GAME */
 /******************/
-function genTiles() {
+function generateTiles() {
 	// Generate the 27 possible tiles:
 	for (var a=0, xl=tileSetup.x.length; a < xl; a++) {
 		for (var b=0, yl=tileSetup.y.length; b < yl; b++) {
@@ -76,7 +76,7 @@ function genTiles() {
     }
 }
 
-function genBoard() {
+function generateBoard() {
     // Places:
 	for (var a=0; a < boardCoords.length; a++) {
 		// Create html element:
@@ -136,14 +136,8 @@ function Tile(id) {
 		var tileDrag = new Drag.Move(t.el, {
 			droppables: $$('.valid'),
 			container: gamearea,
-			precalculate: true,		// improves performance
+			precalculate: false,		// improves performance
 			snap: 10,
-			onEnter: function(element, droppable) {
-				console.log('in', droppable);
-			},
-			onLeave: function(element, droppable) {
-				console.log('out', droppable);
-			},
 			onDrop: function(element, droppable) {
 				// Can we really drop here?
 				if (!droppable || !droppable.hasClass('valid')) {
@@ -177,15 +171,27 @@ function Tile(id) {
 	};
 
 	t.addToBoard = function(location) {
-		console.log("Attempt to store "+t.values[0]+", "+t.values[1]+" and "+t.values[2]+" in p"+location);
+		//console.log("Attempt to store "+t.values[0]+", "+t.values[1]+" and "+t.values[2]+" in p"+location);
 		// Store values in global board object:
 		p[location].val = t.values;
 		filledPlaces.push(location);
-		$('p'+location).removeClass('valid').addClass('taken');
+		$('p'+location).removeClass('valid').addClass('filled');
 		// Increment tiles:
 		tileCount++;
 		lastTile = t;
 		stateChange();
+	};
+
+	t.removeFromBoard = function() {
+
+	};
+
+	t.recycle = function() {
+		$('bank').inject(t.getElement());
+	};
+
+	t.move = function() {
+		t.makeDraggable();
 	};
 
 	return t;		// Export the module
@@ -195,10 +201,16 @@ function Tile(id) {
 /*******************/
 /*! GAME FUNCTIONS */
 /*******************/
-function chooseTile() {
-	// Select a random tile from the invisible bank:
-	var tiles = $$('#bank .tile');
-	var domTile = tiles.getRandom();
+function chooseTile(id) {
+	var domTile;
+	if (id) {
+		domTile = $('t'+id);
+	}
+	else {
+		// Select a random tile from the invisible bank:
+		var tiles = $$('#bank .tile');
+		domTile = tiles.getRandom();
+	}
 	// Select Tile object with that id (chop the 't'):
 	var myTile = allTiles[domTile.get("id").slice(1)];
 	console.log(myTile);
@@ -211,12 +223,33 @@ function undo() {
 	// Clear bay:
 	$$('#bay .tile').inject($('bank'));
 	// Reset last played tile:
-	filledPlaces.pop();
-	lastTile.upNext();
-	lastTile.makeDraggable();
+	var lastPlace = filledPlaces.pop();
+	$('p'+lastPlace).removeClass("filled");
+	//lastTile.upNext();
+	//lastTile.makeDraggable();
+	chooseTile(lastTile);
 	tileCount--;
 	stateChange();
 }
+
+function stateChange() {
+	// Board:
+	findValidPlaces();	// must precede chooseTile, or droppables for next tile are missed
+	console.log(filledPlaces);
+	// Tiles:
+	if (tileCount < 19) chooseTile();
+    else if (tileCount === 19) {
+        // Finishing bonus:
+        hiddenScore += 50;
+    }
+	// Scoring:
+	calcScore();
+    displayNonZeroScores();
+	// Messaging:
+    setStatus();
+    showMessage(tileCount + " tiles played");
+}
+
 
 /*********************/
 /*! VISUAL FUNCTIONS */
@@ -290,18 +323,15 @@ function findValidPlaces() {
 	}
 }
 
-function stateChange() {
-	if (tileCount < 19) chooseTile();
-    else if (tileCount === 19) {
-        // Finishing bonus:
-        hiddenScore += 50;
-    }
-	findValidPlaces();
-	console.log(filledPlaces);
-    calcScore();
-    displayNonZeroScores();
-    setStatus();
-    showMessage(tileCount + " tiles played");
+function setMode(mode) {
+	if (mode.length > 0) {
+		showMessage(mode + " mode enabled");
+	}
+	else {
+		showMessage("mode disabled");
+	}
+	$('gamearea').removeClass('move recycle')
+				 .addClass(mode);
 }
 
 
@@ -412,8 +442,36 @@ function displayNonZeroScores() {
 /*************/
 // Mootools document ready:
 window.addEvent('domready', function() {
-	genBoard();
-	genTiles();
-	console.log(allTiles);	// ok
+	/**************/
+	/*! LISTENERS */
+	/**************/
+	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
+		console.log("!");
+		console.log(target);
+
+		// Recycling a placed tile:
+		if ($('gamearea').hasClass('recycle')) {
+			showMessage("Tile deleted.");
+			showMessage("You have been charged $40.");
+			// Do it:
+			allTiles[target.get("id")].recycle();
+			hiddenScore -= 40;
+		}
+		// Moving a placed tile:
+		else if ($('gamearea').hasClass('move')) {
+			showMessage("You have been charged $70.");
+			showMessage("Drag the tile to an empty space.");
+			// Do it:
+			allTiles[target.get("id")].move();
+			hiddenScore -= 70;
+		}
+		// Clear special mode:
+		setMode('');
+	});
+
+
+	generateBoard();
+	generateTiles();
+	//console.log(allTiles);	// ok
 	chooseTile();
 });
