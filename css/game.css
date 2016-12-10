@@ -149,6 +149,14 @@ dd {
 .place.valid {
     background: url(../img/tiles/place-hover.png) no-repeat;
 }
+.place > .tile {
+    top: -36px;
+    left: 0;
+}
+#bay .tile {
+    top: 10px;
+    left: 4px;
+}
 .tile.current {
     z-index: 20;
 }

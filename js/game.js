@@ -136,8 +136,11 @@ function Tile(id) {
 		var tileDrag = new Drag.Move(t.el, {
 			droppables: $$('.valid'),
 			container: gamearea,
-			precalculate: false,		// improves performance
+			precalculate: true,		// improves performance
 			snap: 10,
+			onStart: function(element) {
+				t.el.addClass("current");
+			},
 			onDrop: function(element, droppable) {
 				// Can we really drop here?
 				if (!droppable || !droppable.hasClass('valid')) {
@@ -149,15 +152,16 @@ function Tile(id) {
 					// Remove draggability:
 					tileDrag.detach();
 					// Drop it:
-					console.log(t.el.get('id')+' dropped into '+droppable.get('id'));
+					filledPlaces.erase(t.location);
+					console.log('t'+t.id+' dropped into '+droppable.id);
 					t.el.inject(droppable);
 					t.el.removeClass('current');
 					// Store the tile's values:
-					t.addToBoard(parseInt(droppable.get('id').substr(1,2), 10)); 	// e.g. 53;
+					t.addToBoard(parseInt(droppable.get('id').slice(1))); 	// e.g. 53;
 				}
 				// Zero tile position whether in bay or in board place:
 				t.el.setStyles({
-					'top': '-36px',		// WOULD ONLY WORK FOR BOARD
+					'top': '-36px',	// WORKS FOR BOARD, NOT BAY
 					'left': 0
 				});
 			}
@@ -171,23 +175,21 @@ function Tile(id) {
 	};
 
 	t.addToBoard = function(location) {
-		//console.log("Attempt to store "+t.values[0]+", "+t.values[1]+" and "+t.values[2]+" in p"+location);
 		// Store values in global board object:
 		p[location].val = t.values;
 		filledPlaces.push(location);
 		$('p'+location).removeClass('valid').addClass('filled');
+		// Store location on tile:
+		t.location = location;
 		// Increment tiles:
 		tileCount++;
 		lastTile = t;
 		stateChange();
 	};
 
-	t.removeFromBoard = function() {
-
-	};
-
 	t.recycle = function() {
-		$('bank').inject(t.getElement());
+		// Take tile off the board:
+		t.getElement().inject($('bank'));
 	};
 
 	t.move = function() {
@@ -442,36 +444,36 @@ function displayNonZeroScores() {
 /*************/
 // Mootools document ready:
 window.addEvent('domready', function() {
+
+		generateBoard();
+		generateTiles();
+		//console.log(allTiles);	// ok
+		chooseTile();
+
 	/**************/
 	/*! LISTENERS */
 	/**************/
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
-		console.log("!");
-		console.log(target);
+		console.log(target.id);
 
 		// Recycling a placed tile:
 		if ($('gamearea').hasClass('recycle')) {
 			showMessage("Tile deleted.");
 			showMessage("You have been charged $40.");
-			// Do it:
-			allTiles[target.get("id")].recycle();
 			hiddenScore -= 40;
+			// Do it:
+			allTiles[target.id.slice(1)].recycle();	// NOT A TILE OBJECT YET
 		}
 		// Moving a placed tile:
 		else if ($('gamearea').hasClass('move')) {
 			showMessage("You have been charged $70.");
 			showMessage("Drag the tile to an empty space.");
-			// Do it:
-			allTiles[target.get("id")].move();
 			hiddenScore -= 70;
+			// Do it:
+			allTiles[target.id.slice(1)].move();	// NOT A TILE OBJECT YET
 		}
 		// Clear special mode:
 		setMode('');
 	});
 
-
-	generateBoard();
-	generateTiles();
-	//console.log(allTiles);	// ok
-	chooseTile();
 });
