@@ -127,8 +127,10 @@ function Tile(id) {
 			.addClass('current')
 			.setStyles({
 				'top':'10px',
-				'left':'4px'
+				'left':'4px',
+				'display': 'none'
 			});
+		new Fx.Reveal(t.getElement(), {duration: 750, transitionOpacity: true}).reveal();
 	};
 
 	t.makeDraggable = function() {
@@ -153,7 +155,7 @@ function Tile(id) {
 					tileDrag.detach();
 					// Drop it:
 					filledPlaces.erase(t.location);
-					console.log('t'+t.id+' dropped into '+droppable.id);
+					console.log('t'+t.el.id+' dropped into '+droppable.id);
 					t.el.inject(droppable);
 					t.el.removeClass('current');
 					// Store the tile's values:
@@ -332,7 +334,7 @@ function setMode(mode) {
 	else {
 		showMessage("mode disabled");
 	}
-	$('gamearea').removeClass('move recycle')
+	$('gamearea').removeClass('move recycle')		// WORKING?
 				 .addClass(mode);
 }
 
@@ -453,6 +455,12 @@ window.addEvent('domready', function() {
 	/**************/
 	/*! LISTENERS */
 	/**************/
+	$('gamearea').addEvent('click', function(event) {
+		// Close menus:
+		if (event.target.id !== 'menu') { $('menu').removeClass('open'); }
+		if (event.target.id !== 'prices') { $('prices').removeClass('open'); }
+	});
+
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
 		console.log(target.id);
 
@@ -462,7 +470,7 @@ window.addEvent('domready', function() {
 			showMessage("You have been charged $40.");
 			hiddenScore -= 40;
 			// Do it:
-			allTiles[target.id.slice(1)].recycle();	// NOT A TILE OBJECT YET
+			allTiles[target.id.slice(1)].recycle();
 		}
 		// Moving a placed tile:
 		else if ($('gamearea').hasClass('move')) {
@@ -470,10 +478,25 @@ window.addEvent('domready', function() {
 			showMessage("Drag the tile to an empty space.");
 			hiddenScore -= 70;
 			// Do it:
-			allTiles[target.id.slice(1)].move();	// NOT A TILE OBJECT YET
+			allTiles[target.id.slice(1)].move();
 		}
 		// Clear special mode:
 		setMode('');
 	});
-
 });
+
+
+// IP test:
+var user;
+var jsonRequest = new Request.JSON({
+	url: 'http://ipinfo.io',	// backup service?
+	onSuccess: function(data) {
+		console.log(data);
+		user.ip = data.ip;
+		user.country = data.country;
+	}
+}).get();
+// On load, post to server, telling ip/country/sessionid -> append record
+// On game end, post score, moves, sequence (?) -> update record
+// See where score places in high scores
+// Prompt for a name, display table
