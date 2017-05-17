@@ -15,8 +15,12 @@
           \____/
 */
 
+var gamearea = $('gamearea');
+
 var boardCoords = [11,12,13,21,22,23,24,31,32,33,34,35,41,42,43,44,51,52,53];
 var edgeCoords =  ['00','01','02','03',10,14,20,25,30,36,40,45,50,54,60,61,62,63];  // ADD 1 to eliminate strings?
+
+var filledPlaces = [];	// add to it each turn
 
 var p = {		// could be combined with boardCoords
 	11: {val: [0,0,0], nb: [21,22,12]},
@@ -46,13 +50,17 @@ var tileSetup = {
 	z: [2,6,7]		// path, road, rail
 };
 
-var gamearea = $('gamearea');
-
 var allTiles = {};	// necessary?
 
 var tileCount = 0;
 
 var lastTile;
+
+var user = {
+	ip: myip,	// should be ready from previous script... maybe
+	country: ''
+};
+
 
 /******************/
 /*! GENERATE GAME */
@@ -303,8 +311,6 @@ function showMessage(msg) {
 /********************/
 /*! BOARD FUNCTIONS */
 /********************/
-var filledPlaces = [];	// add to it each turn
-
 function findValidPlaces() {
 	var validPlaces = [];
 	if (tileCount > 0) {	// because all valid on first turn
@@ -442,17 +448,34 @@ function displayNonZeroScores() {
 
 
 function submitScore() {
-
 }
 
 function showHighscores() {
+	// Clear out container:
+	$('highscores').getElement('tbody').set('html','');
+
 	new Request.JSON({
-		'url': 'js/scores.json',
-		onComplete: function(data) {
-			var scores = JSON.decode(data);
-			console.log(scores);
+		log: true,
+		method: 'get',
+		url: 'js/scores.json',
+		onRequest: function() {
+			console.log(this);
+		},
+		onComplete: function(entries) {
+			console.log(entries);
+			entries.sortBy('-score');
+			entries.forEach(function(entry) {
+				// Build up a table row:
+				var tr = new Element('tr');
+				new Element('td', { html: entry.country }).inject(tr);
+				new Element('td', { html: entry.name }).inject(tr);
+				new Element('td', { html: entry.score }).inject(tr);
+				//  Insert into document:
+				tr.inject($('highscores').getElement('tbody'));
+			});
+			$('highscores').addClass('open');
 		}
-	}).get();
+	}).send();
 }
 
 
@@ -474,6 +497,7 @@ window.addEvent('domready', function() {
 		// Close menus:
 		if (event.target.id !== 'menu') { $('menu').removeClass('open'); }
 		if (event.target.id !== 'prices') { $('prices').removeClass('open'); }
+		if (event.target.id !== 'highscores') { $('highscores').removeClass('open'); }
 	});
 
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
@@ -499,13 +523,7 @@ window.addEvent('domready', function() {
 		setMode('');
 	});
 
-	console.log(myip);
-
 	// IP test:
-	var user = {
-		ip: myip,
-		country: ''
-	};
 	new Request.JSONP({
 		log: true,
 	//	url: 'http://jsonip.com/',
@@ -522,14 +540,9 @@ window.addEvent('domready', function() {
 		}
 	}).send();
 
-/*	window.handleip = function(data) {
-		console.log('2', data);
-		user.ip = data.ip;
-		user.country = data.country;
-	}
-*/
 	// On load, post to server, telling ip/country/sessionid -> append record
 	// On game end, post score, moves, sequence (?) -> update record
+	// Deliver top scores to client
 	// See where score places in high scores
 	// Prompt for a name, display table
 

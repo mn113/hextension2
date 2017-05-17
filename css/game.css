@@ -136,6 +136,28 @@ dd {
 
 
 /*
+ * HIGHSCORES
+ */
+#highscores {
+	display: none;
+	width: 50%;
+	height: 50%;
+	position: absolute;
+	top: calc(25% - 1em);
+	left: calc(25% - 1em);
+	background: rgba(255,255,255,0.5);
+	padding: 1em;
+	z-index: 30;
+}
+table {
+	border-collapse: collapse;
+}
+.open {
+	display: block !important;
+}
+
+
+/*
  * BOARD STUFF
  */
 .tile, .place {
