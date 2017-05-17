@@ -441,16 +441,31 @@ function displayNonZeroScores() {
 }
 
 
+function submitScore() {
+
+}
+
+function showHighscores() {
+	new Request.JSON({
+		'url': 'js/scores.json',
+		onComplete: function(data) {
+			var scores = JSON.decode(data);
+			console.log(scores);
+		}
+	}).get();
+}
+
+
 /*************/
 /*! DOMREADY */
 /*************/
 // Mootools document ready:
 window.addEvent('domready', function() {
 
-		generateBoard();
-		generateTiles();
-		//console.log(allTiles);	// ok
-		chooseTile();
+	generateBoard();
+	generateTiles();
+	//console.log(allTiles);	// ok
+	chooseTile();
 
 	/**************/
 	/*! LISTENERS */
@@ -483,20 +498,39 @@ window.addEvent('domready', function() {
 		// Clear special mode:
 		setMode('');
 	});
-});
 
+	console.log(myip);
 
-// IP test:
-var user;
-var jsonRequest = new Request.JSON({
-	url: 'http://ipinfo.io',	// backup service?
-	onSuccess: function(data) {
-		console.log(data);
+	// IP test:
+	var user = {
+		ip: myip,
+		country: ''
+	};
+	new Request.JSONP({
+		log: true,
+	//	url: 'http://jsonip.com/',
+		url: 'http://freegeoip.net/json',	// works when not ad-blocked
+	//	url: 'http://api.ipify.org?format=jsonp',
+		callbackKey: 'callback',
+		onRequest: function() {
+			console.log('...');
+		},
+		onComplete: function(data) {
+			console.log('1', data);
+			user.ip = data.ip;
+			user.country = data.country_code;
+		}
+	}).send();
+
+/*	window.handleip = function(data) {
+		console.log('2', data);
 		user.ip = data.ip;
 		user.country = data.country;
 	}
-}).get();
-// On load, post to server, telling ip/country/sessionid -> append record
-// On game end, post score, moves, sequence (?) -> update record
-// See where score places in high scores
-// Prompt for a name, display table
+*/
+	// On load, post to server, telling ip/country/sessionid -> append record
+	// On game end, post score, moves, sequence (?) -> update record
+	// See where score places in high scores
+	// Prompt for a name, display table
+
+});
