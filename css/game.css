@@ -205,6 +205,9 @@ input#website {
 .move .tile:hover {
     cursor: move;
 }
+.recycle .tile:hover {
+	cursor: url(../img/cursor_digger.png);
+}
 
 #p11 {top: 127px; left: 81px; z-index:4}
 #p12 {top: 181px; left: 81px; z-index:6}
