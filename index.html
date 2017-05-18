@@ -21,9 +21,9 @@
         <div id="menu" onclick="$(this).toggleClass('open')">
             <ul id="menu_contents">
                 <li><a onclick="window.location.reload();">Restart game</a></li>
-                <li><a onclick="setMode('move')">Move tile</a></li>
-                <li><a onclick="setMode('recycle')">Recycle tile</a></li>
-                <li><a onclick="undo()">Undo (-$10)</a></li>
+				<li><a onclick="undo()">Undo (-$10)</a></li>
+                <li><a onclick="setMode('recycle')">Recycle tile (-$25)</a></li>
+				<li><a onclick="setMode('move')">Move tile (-$40)</a></li>
                 <li><a onclick="$('edges').toggle()">Toggle edges</a></li>
 				<li><a onclick="showHighscores();">Highscores</a></li>
             </ul>

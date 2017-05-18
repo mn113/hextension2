@@ -196,17 +196,25 @@ input#website {
 .tile.current {
     z-index: 20;
 }
+/* CURSORS */
 .tile.current:hover {
 	cursor: move;
 }
-.recycle .tile:hover {
-    cursor: pointer;
+.move {
+	cursor: url(../img/cursor_magnet_off.png), move;
 }
-.move .tile:hover {
-    cursor: url(../img/cursor_magnet.png);
+.move .place .tile:hover {
+    cursor: url(../img/cursor_magnet_on.png), move;
 }
-.recycle .tile:hover {
-	cursor: url(../img/cursor_digger.png);
+.recycle {
+	cursor: url(../img/cursor_digger_off.png), not-allowed;
+}
+.recycle .place .tile:hover {
+	cursor: url(../img/cursor_digger_on.png), not-allowed;
+}
+.move #bay .tile,
+.recycle #bay .tile {
+	cursor: not-allowed;
 }
 
 #p11 {top: 127px; left: 81px; z-index:4}

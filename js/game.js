@@ -21,6 +21,7 @@ var boardCoords = [11,12,13,21,22,23,24,31,32,33,34,35,41,42,43,44,51,52,53];
 var edgeCoords =  ['00','01','02','03',10,14,20,25,30,36,40,45,50,54,60,61,62,63];  // ADD 1 to eliminate strings?
 
 var filledPlaces = [];	// add to it each turn
+var bay = [];			// must only contain 1 tile
 
 var p = {		// could be combined with boardCoords
 	11: {val: [0,0,0], nb: [21,22,12]},
@@ -145,7 +146,7 @@ function Tile(id) {
 
 	t.makeDraggable = function() {
 		// Set up draggability:
-		var tileDrag = new Drag.Move(t.el, {
+		t.tileDrag = new Drag.Move(t.el, {
 			droppables: $$('.valid'),
 			container: gamearea,
 			precalculate: true,		// improves performance
@@ -162,12 +163,13 @@ function Tile(id) {
 				// If dropped on board place:
 				else {
 					// Remove draggability:
-					tileDrag.detach();
+					t.tileDrag.detach();
 					// Drop it:
 					filledPlaces.erase(t.location);
 					console.log('t'+t.el.id+' dropped into '+droppable.id);
 					t.el.inject(droppable);
 					t.el.removeClass('current');
+					bay.splice(t.el);
 					// Store the tile's values:
 					t.addToBoard(parseInt(droppable.get('id').slice(1))); 	// e.g. 53;
 				}
@@ -179,6 +181,10 @@ function Tile(id) {
 			}
 		});
 	};
+
+	t.freeze = function() {
+		t.tileDrag.detach();
+	}
 
 	t.springBack = function() {
 		var animation = new Fx.Morph(t.el, {duration: 300});
@@ -229,6 +235,7 @@ function chooseTile(id) {
 	var myTile = allTiles[domTile.get("id").slice(1)];
 	console.log(myTile);
 	// Transfer chosen tile to the bay & make fully draggable:
+	bay.push(myTile);
     myTile.upNext();
     myTile.makeDraggable();
 }
@@ -251,11 +258,15 @@ function stateChange() {
 	findValidPlaces();	// must precede chooseTile, or droppables for next tile are missed
 	console.log(filledPlaces);
 	// Tiles:
-	if (tileCount < 19) chooseTile();
-    else if (tileCount === 19) {
+    if (tileCount === 19) {
         // Finishing bonus:
+        setStatus("Game Complete!");
+		showHighscores();
         hiddenScore += 50;
     }
+	else if (bay.length === 0) {
+		chooseTile()
+	}
 	// Scoring:
 	calcScore();
     displayNonZeroScores();
@@ -269,7 +280,13 @@ function stateChange() {
 /*********************/
 /*! VISUAL FUNCTIONS */
 /*********************/
-function setStatus() {
+function setStatus(message) {
+	// Message mode:
+	if (message) {
+		$('scorestatus').set('text', message);
+		return;
+	}
+	// Score-reflecting mode:
     var statuses = {
         10: 'Getting going...',
         30: 'Looking good...',
@@ -376,6 +393,9 @@ function findValidPlaces() {
 
 function setMode(mode) {
 	$('gamearea').removeClass('move recycle');
+	// Freeze bay tile:
+	var nextid = $('bay').getChildren('.tile').get('id');
+	//allTiles[nextid].freeze();
 
 	switch(mode) {
 		case 'move':
@@ -633,19 +653,20 @@ window.addEvent('domready', function() {
 		// Recycling a placed tile:
 		if ($('gamearea').hasClass('recycle')) {
 			showMessage("Tile deleted.");
-			showMessage("You have been charged $40.");
-			hiddenScore -= 40;
+			showMessage("You have been charged $25.");
+			hiddenScore -= 25;
 			// Do it:
 			allTiles[target.id.slice(1)].recycle();
 		}
 		// Moving a placed tile:
 		else if ($('gamearea').hasClass('move')) {
-			showMessage("You have been charged $70.");
+			showMessage("You have been charged $40.");
 			showMessage("Drag the tile to an empty space.");
-			hiddenScore -= 70;
+			hiddenScore -= 40;
 			// Do it:
 			allTiles[target.id.slice(1)].move();
 		}
+		findValidPlaces();
 		// Clear special mode:
 		setMode('');
 	});
