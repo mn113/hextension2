@@ -203,7 +203,7 @@ input#website {
     cursor: pointer;
 }
 .move .tile:hover {
-    cursor: move;
+    cursor: url(../img/cursor_magnet.png);
 }
 .recycle .tile:hover {
 	cursor: url(../img/cursor_digger.png);

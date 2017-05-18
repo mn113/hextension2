@@ -377,15 +377,33 @@ function findValidPlaces() {
 function setMode(mode) {
 	$('gamearea').removeClass('move recycle');
 
-	if (mode.length > 0 && gameMode == '') {
-		gameMode = mode;
-		$('gamearea').addClass(mode);
-		showMessage(mode + " mode enabled", true);
-	}
-	else if (mode == '') {
-		clearMessages();
-		gameMode = '';
-		showMessage("mode disabled");
+	switch(mode) {
+		case 'move':
+			if (tileCount > 0 && tileCount < 19) {
+				gameMode = mode;
+				$('gamearea').addClass(mode);
+				// Disable new tile drag
+				showMessage(mode + " mode enabled", true);
+			}
+			break;
+
+		case 'recycle':
+			if (tileCount > 0) {
+				gameMode = mode;
+				$('gamearea').addClass(mode);
+				// Disable new tile drag
+				showMessage(mode + " mode enabled", true);
+			}
+			break;
+
+		case '':
+			clearMessages();
+			gameMode = '';
+			showMessage("mode disabled");
+			break;
+
+		default:
+			break;
 	}
 }
 
