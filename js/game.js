@@ -257,6 +257,7 @@ function stateChange() {
 	// Scoring:
 	calcScore();
     displayNonZeroScores();
+	calcBoni();
 	// Messaging:
     setStatus();
     showMessage(tileCount + " tiles played");
@@ -305,6 +306,21 @@ function showMessage(msg) {
         }).chain(function() {
             para.destroy();
         });
+}
+
+function awardBonus(key) {
+	console.log("Awarding bonus", key);
+	var boni = {
+		1: {bonus: 10, msg: "Greenfields: $10 bonus awarded!"},
+		2: {bonus: 20, msg: "Expander: $20 bonus awarded!"},
+		3: {bonus: 30, msg: "Super Developer: $30 bonus awarded!"}
+	};
+	if (boni[key]) {
+		hiddenScore += boni[key].bonus;
+		showMessage(boni[key].msg);
+		// Unset bonus so it only unlocks once:
+		boni[key] = false;
+	}
 }
 
 
@@ -411,6 +427,15 @@ function calcScore() {
 	}
 }
 
+function calcBoni() {
+	// Count scoring lines:
+	var scoring = Object.values(scores).filter(val => val > 0).length;
+	console.log(scoring, "scoring lines");
+	if (scoring === 9) awardBonus(3);
+	else if (scoring === 6) awardBonus(2);
+	else if (scoring === 3) awardBonus(1);
+}
+
 function displayNonZeroScores() {
     // Display line scores on edge tiles:
     $('f14').set('text', scores.x1 > 0 ? '$' + scores.x1 : '');
@@ -447,8 +472,15 @@ function displayNonZeroScores() {
 }
 
 
-function submitScore() {
-}
+
+/*****************/
+/*! SERVER COMMS */
+/*****************/
+// Deliver top scores to client first
+// On first tile placed, post to server, telling ip/country/sessionid -> add record
+// On game end, (ask name), post score, moves, sequence (?) -> update record
+// Prompt for a name, display table
+// See where score places in high scores
 
 function showHighscores() {
 	// Clear out container:
@@ -478,6 +510,56 @@ function showHighscores() {
 	}).send();
 }
 
+function geoLookup() {
+	// IP test:
+	new Request.JSONP({
+		log: true,
+	//	url: 'http://jsonip.com/',
+		url: 'http://freegeoip.net/json',	// works when not ad-blocked
+	//	url: 'http://api.ipify.org?format=jsonp',
+		callbackKey: 'callback',
+		onRequest: function() {
+			console.log('...');
+		},
+		onComplete: function(data) {
+			console.log('1', data);
+			user.ip = data.ip;
+			user.country = data.country_code;
+		}
+	}).send();
+}
+
+function newRecord() {
+	user.session = '';
+	user.timestamp = new Date();
+
+	new Request.JSON({
+		url: '',
+		data: user,
+		onComplete: function() {
+			console.log("Record initialised.");
+		}
+	}).send();
+}
+
+function submitScore(user) {
+	user.timestamp = new Date();
+	// Check user object:
+	if ((user.hasOwnProperty('name') && user.name.length > 0) &&
+		(user.hasOwnProperty('score') && typeof user.score === 'Number') &&
+		(user.hasOwnProperty('ip') && user.ip.length > 0)) {
+
+		new Request.JSON({
+			url: '',
+			data: user,
+			onComplete: function() {
+				console.log("Thanks for your score.");
+			}
+		}).send();
+	}
+}
+
+
 
 /*************/
 /*! DOMREADY */
@@ -497,7 +579,6 @@ window.addEvent('domready', function() {
 		// Close menus:
 		if (event.target.id !== 'menu') { $('menu').removeClass('open'); }
 		if (event.target.id !== 'prices') { $('prices').removeClass('open'); }
-		if (event.target.id !== 'highscores') { $('highscores').removeClass('open'); }
 	});
 
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
@@ -523,27 +604,15 @@ window.addEvent('domready', function() {
 		setMode('');
 	});
 
-	// IP test:
-	new Request.JSONP({
-		log: true,
-	//	url: 'http://jsonip.com/',
-		url: 'http://freegeoip.net/json',	// works when not ad-blocked
-	//	url: 'http://api.ipify.org?format=jsonp',
-		callbackKey: 'callback',
-		onRequest: function() {
-			console.log('...');
-		},
-		onComplete: function(data) {
-			console.log('1', data);
-			user.ip = data.ip;
-			user.country = data.country_code;
-		}
-	}).send();
-
-	// On load, post to server, telling ip/country/sessionid -> append record
-	// On game end, post score, moves, sequence (?) -> update record
-	// Deliver top scores to client
-	// See where score places in high scores
-	// Prompt for a name, display table
+	// Name form submission:
+	$('submitscore').addEvent('submit', function(e) {
+		e.preventDefault();
+		//new Event(e).stop();
+		console.log(this);
+		// User object gains name from form & score from game:
+		user.name = this.name;
+		user.score = totalScore;	// TODO: store on user
+		submitScore();
+	});
 
 });

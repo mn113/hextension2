@@ -22,8 +22,8 @@
             <ul id="menu_contents">
                 <li><a onclick="window.location.reload();">Restart game</a></li>
                 <li><a onclick="setMode('move')">Move tile</a></li>
-                <li><a onclick="setMode('recycle')">Remove tile</a></li>
-                <li><a onclick="undo()">Undo</a></li>
+                <li><a onclick="setMode('recycle')">Recycle tile</a></li>
+                <li><a onclick="undo()">Undo (-$10)</a></li>
                 <li><a onclick="$('edges').toggle()">Toggle edges</a></li>
 				<li><a onclick="showHighscores();">Highscores</a></li>
             </ul>
@@ -46,6 +46,14 @@
 		    <div id="edges"></div>
 		</div>
 		<div id="highscores">
+			<a class="closer" onclick="$('highscores').toggleClass('open')">&times;</a>
+			<form id="submitscore" action="backend.php" method="POST">
+				<label for="myname">Enter your name to submit score</label>
+				<input id="myname" type="text" placeholder="name" />
+				<input id="website" type="text" />
+				<button type="submit">&rarr;</button>
+			</form>
+			<h3>Top Scores</h3>
 			<table>
 				<thead>
 					<th>Country</th>
