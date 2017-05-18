@@ -133,9 +133,17 @@ function Tile(id) {
 		return $('t'+id);
 	};
 
+	t.toBay = function() {
+		t.el.inject($('bay'));
+	};
+
+	t.toBank = function() {
+		t.el.inject($('bank'));
+	};
+
 	t.upNext = function() {
-		t.el.inject($('bay'), 'top')
-			.addClass('current')
+		t.toBay();
+		t.el.addClass('current')
 			.setStyles({
 				'top':'10px',
 				'left':'4px',
@@ -153,6 +161,15 @@ function Tile(id) {
 			snap: 10,
 			onStart: function(element) {
 				t.el.addClass("current");
+				// If parent is a filled place, make it unfilled:
+				if (t.el.getParent().hasClass('filled')) {
+					t.el.getParent().removeClass('filled');
+					findValidPlaces();
+				}
+				// First tile can be moved anywhere:
+				if (gameMode == 'move' && tileCount < 2) {
+					$$('#board .place').addClass('valid');
+				}
 			},
 			onDrop: function(element, droppable) {
 				// Can we really drop here?
@@ -182,10 +199,6 @@ function Tile(id) {
 		});
 	};
 
-	t.freeze = function() {
-		t.tileDrag.detach();
-	}
-
 	t.springBack = function() {
 		var animation = new Fx.Morph(t.el, {duration: 300});
 		animation.start({'top': 0, 'left': 0});
@@ -199,15 +212,13 @@ function Tile(id) {
 		$('p'+location).removeClass('valid').addClass('filled');
 		// Store location on tile:
 		t.location = location;
-		// Increment tiles:
-		tileCount++;
 		lastTile = t;
-		stateChange();
+		updateState();
 	};
 
 	t.recycle = function() {
 		// Take tile off the board:
-		t.getElement().inject($('bank'));
+		t.toBank();
 	};
 
 	t.move = function() {
@@ -235,26 +246,14 @@ function chooseTile(id) {
 	var myTile = allTiles[domTile.get("id").slice(1)];
 	console.log(myTile);
 	// Transfer chosen tile to the bay & make fully draggable:
-	bay.push(myTile);
+	myTile.toBay();
     myTile.upNext();
     myTile.makeDraggable();
 }
 
-function undo() {
-	// Clear bay:
-	$$('#bay .tile').inject($('bank'));
-	// Reset last played tile:
-	var lastPlace = filledPlaces.pop();
-	$('p'+lastPlace).removeClass("filled");
-	//lastTile.upNext();
-	//lastTile.makeDraggable();
-	chooseTile(lastTile);
-	tileCount--;
-	stateChange();
-}
-
-function stateChange() {
+function updateState() {
 	// Board:
+	tileCount = $$('#board .place .tile').length;
 	findValidPlaces();	// must precede chooseTile, or droppables for next tile are missed
 	console.log(filledPlaces);
 	// Tiles:
@@ -265,7 +264,7 @@ function stateChange() {
         hiddenScore += 50;
     }
 	else if (bay.length === 0) {
-		chooseTile()
+		chooseTile();
 	}
 	// Scoring:
 	calcScore();
@@ -274,6 +273,29 @@ function stateChange() {
 	// Messaging:
     setStatus();
     showMessage(tileCount + " tiles played");
+}
+
+function undo() {
+	// Clear bay:
+	$$('#bay .tile').inject($('bank'));
+	bay = [];
+	// Reset last played tile:
+	var lastPlace = filledPlaces.pop();
+	$('p'+lastPlace).removeClass("filled");
+	//lastTile.upNext();
+	//lastTile.makeDraggable();
+	chooseTile(lastTile);
+	updateState();
+}
+
+function moveTile(id) {
+
+	updateState();
+}
+
+function recycleTile(id) {
+
+	updateState();
 }
 
 
@@ -389,13 +411,12 @@ function findValidPlaces() {
 			$('p'+id).addClass('valid');
 		});
 	}
+	console.log($$('.valid').length + " valid places");
+	return validPlaces;
 }
 
 function setMode(mode) {
 	$('gamearea').removeClass('move recycle');
-	// Freeze bay tile:
-	var nextid = $('bay').getChildren('.tile').get('id');
-	//allTiles[nextid].freeze();
 
 	switch(mode) {
 		case 'move':
@@ -403,6 +424,7 @@ function setMode(mode) {
 				gameMode = mode;
 				$('gamearea').addClass(mode);
 				// Disable new tile drag
+				$('bayover').addClass('closed');
 				showMessage(mode + " mode enabled", true);
 			}
 			break;
@@ -412,6 +434,7 @@ function setMode(mode) {
 				gameMode = mode;
 				$('gamearea').addClass(mode);
 				// Disable new tile drag
+				$('bayover').addClass('closed');
 				showMessage(mode + " mode enabled", true);
 			}
 			break;
@@ -419,6 +442,8 @@ function setMode(mode) {
 		case '':
 			clearMessages();
 			gameMode = '';
+			// Open bay:
+			$('bayover').removeClass('closed');
 			showMessage("mode disabled");
 			break;
 
@@ -648,25 +673,30 @@ window.addEvent('domready', function() {
 	});
 
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
-		console.log(target.id);
+		placeId = target.getParent().id.slice(1);
+		console.log(target.id, placeId);
 
 		// Recycling a placed tile:
 		if ($('gamearea').hasClass('recycle')) {
-			showMessage("Tile deleted.");
-			showMessage("You have been charged $25.");
-			hiddenScore -= 25;
+			filledPlaces.erase(placeId);
 			// Do it:
 			allTiles[target.id.slice(1)].recycle();
+			hiddenScore -= 25;
+			updateState();
+			showMessage("Tile recycled.");
+			showMessage("You have been charged $25.");
 		}
 		// Moving a placed tile:
 		else if ($('gamearea').hasClass('move')) {
-			showMessage("You have been charged $40.");
-			showMessage("Drag the tile to an empty space.");
-			hiddenScore -= 40;
+			filledPlaces.erase(placeId);
+			$('p'+placeId).addClass('valid');
 			// Do it:
 			allTiles[target.id.slice(1)].move();
+			hiddenScore -= 40;
+			updateState();
+			showMessage("You have been charged $40.");
+			showMessage("Drag the tile to an empty space.");
 		}
-		findValidPlaces();
 		// Clear special mode:
 		setMode('');
 	});

@@ -57,7 +57,18 @@ body {
     background: rgba(0,0,0,0.1);
     text-transform: uppercase;
 }
-
+#bayover {
+	position: absolute;
+	top: 0;
+    width: 120px;
+    height: 0;
+    background: rgba(255,0,0,0.2);
+	z-index: 100;
+}
+#bayover.closed {
+	height: 120px;
+	cursor: not-allowed;
+}
 
 /*
  * MENU STUFF
@@ -192,6 +203,13 @@ input#website {
 #bay .tile {
     top: 10px;
     left: 4px;
+}
+.move .place .tile:hover:after,
+.recycle .place .tile:hover:after {
+	content: url(../img/spotlight.png);
+	position: absolute;
+	top: 15px;
+	left: 0px;
 }
 .tile.current {
     z-index: 20;
