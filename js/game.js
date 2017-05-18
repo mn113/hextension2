@@ -56,6 +56,8 @@ var tileCount = 0;
 
 var lastTile;
 
+var gameMode = '';	// '' || 'move' || 'recycle'
+
 var user = {
 	ip: myip,	// should be ready from previous script... maybe
 	country: ''
@@ -290,22 +292,45 @@ function setStatus() {
     $('scorestatus').set('text', status);
 }
 
-function showMessage(msg) {
+function showMessage(msg, isSticky) {
+	isSticky = isSticky || false;
+
     // Create a new message <p> element:
     var para = new Element('p', {
         styles: { 'opacity': 0, 'margin-top': '20px' },
         html: msg
     }).inject($('messages'));
 
+	// Fade in & slide up:
     var anim = new Fx.Morph(para, {duration: 500});
-    // Fade in & slide up:
-	anim.start({ 'opacity': 1, 'margin-top': 0 })
-        .chain(function() {
+	anim.start({ 'opacity': 1, 'margin-top': 0 });
+
+	// Remove automatically:
+	if (!isSticky) {
+		anim.chain(function() {
             // Fade away:
             this.start.delay(2000, this, { 'opacity': 0 });
-        }).chain(function() {
+        })
+		.chain(function() {
             para.destroy();
         });
+	}
+	// Make message cancel button:
+	else {
+		new Element('a', {
+			html: ' [cancel]',
+			styles: {'cursor': 'pointer'}
+		})
+		.addEvent('click', function() {
+			para.destroy();
+			setMode('');
+		})
+		.inject(para);
+	}
+}
+
+function clearMessages() {
+	$('messages').set('html','');
 }
 
 function awardBonus(key) {
@@ -350,14 +375,18 @@ function findValidPlaces() {
 }
 
 function setMode(mode) {
-	if (mode.length > 0) {
-		showMessage(mode + " mode enabled");
+	$('gamearea').removeClass('move recycle');
+
+	if (mode.length > 0 && gameMode == '') {
+		gameMode = mode;
+		$('gamearea').addClass(mode);
+		showMessage(mode + " mode enabled", true);
 	}
-	else {
+	else if (mode == '') {
+		clearMessages();
+		gameMode = '';
 		showMessage("mode disabled");
 	}
-	$('gamearea').removeClass('move recycle')		// WORKING?
-				 .addClass(mode);
 }
 
 
@@ -430,7 +459,6 @@ function calcScore() {
 function calcBoni() {
 	// Count scoring lines:
 	var scoring = Object.values(scores).filter(val => val > 0).length;
-	console.log(scoring, "scoring lines");
 	if (scoring === 9) awardBonus(3);
 	else if (scoring === 6) awardBonus(2);
 	else if (scoring === 3) awardBonus(1);
