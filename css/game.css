@@ -57,18 +57,7 @@ body {
     background: rgba(0,0,0,0.1);
     text-transform: uppercase;
 }
-#bayover {
-	position: absolute;
-	top: 0;
-    width: 120px;
-    height: 0;
-    background: rgba(0,0,0,0.2);
-	z-index: 100;
-}
-#bayover.closed {
-	height: 120px;
-	cursor: not-allowed;
-}
+
 
 /*
  * MENU STUFF
@@ -93,7 +82,9 @@ ul#menu_contents {
     list-style: none;
     line-height: 18px;
 }
-#menu.open > ul#menu_contents { display: block; }
+#menu.open > ul#menu_contents {
+	display: block;
+}
 ul#menu_contents a {
     display: block;
     padding: 3px 5px;
@@ -147,42 +138,6 @@ dd {
 
 
 /*
- * HIGHSCORES
- */
-#highscores {
-	display: none;
-	width: 50%;
-	height: 50%;
-	position: absolute;
-	top: calc(25% - 1em);
-	left: calc(25% - 1em);
-	background: rgba(255,255,255,0.5);
-	padding: 1em;
-	z-index: 30;
-}
-table {
-	border-collapse: collapse;
-}
-.open {
-	display: block !important;
-}
-.closer {
-	position: absolute;
-	top: 5px;
-	right: 5px;
-	padding: 0.2em 0.5em;
-	cursor: pointer;
-}
-input#myname {
-	width: 8em;
-}
-input#website {
-	position: absolute;
-	left: -10000px;
-}
-
-
-/*
  * BOARD STUFF
  */
 .tile, .place {
@@ -214,39 +169,8 @@ input#website {
 .tile.current {
     z-index: 20;
 }
-/* CURSORS */
 .tile.current:hover {
 	cursor: move;
-}
-
-
-/*
- * SPECIAL MOVES
- */
-.recycle #bay .tile,
-.move #bay .tile {
-    filter:         url(~"data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale");
-    -webkit-filter: grayscale(100%);
-    -moz-filter:    grayscale(100%);
-    -ms-filter:     grayscale(100%);
-    -o-filter:      grayscale(100%);
-    filter: gray;
-}
-.move {
-	cursor: url(../img/cursor_magnet_off.png), move;
-}
-.move .place .tile:hover {
-    cursor: url(../img/cursor_magnet_on.png), move;
-}
-.recycle {
-	cursor: url(../img/cursor_digger_off.png), not-allowed;
-}
-.recycle .place .tile:hover {
-	cursor: url(../img/cursor_digger_on.png), not-allowed;
-}
-.move #bay .tile,
-.recycle #bay .tile {
-	cursor: not-allowed;
 }
 
 #p11 {top: 127px; left: 81px; z-index:4}
@@ -327,4 +251,84 @@ input#website {
 #f61.scoring,
 #f62.scoring {
     background: url(../img/tiles/base-tile-larrow.png) no-repeat;
+}
+
+
+/*
+ * SPECIAL MOVES
+ */
+.recycle #bay .tile,
+.move #bay .tile {
+    filter:         url(~"data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale");
+    -webkit-filter: grayscale(100%);
+    -moz-filter:    grayscale(100%);
+    -ms-filter:     grayscale(100%);
+    -o-filter:      grayscale(100%);
+    filter: gray;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+.move #board {
+	cursor: url(../img/cursor_magnet_off.png), move;
+}
+.move #board .place .tile:hover {
+    cursor: url(../img/cursor_magnet_on.png), move;
+}
+.recycle #board {
+	cursor: url(../img/cursor_digger_off.png), not-allowed;
+}
+.recycle #board .place .tile:hover {
+	cursor: url(../img/cursor_digger_on.png), not-allowed;
+}
+
+
+/*
+ * MESSAGES
+ */
+#messages a {
+	font-size: 0.8em;
+	margin-left: 1em;
+	color: indianred;
+}
+
+#messages p.construction:before,
+#messages p.construction:after {
+	content: "🚧";
+    margin: 0 1em;
+}
+
+
+/*
+ * HIGHSCORES
+ */
+#highscores {
+	display: none;
+	width: 50%;
+	height: 50%;
+	position: absolute;
+	top: calc(25% - 1em);
+	left: calc(25% - 1em);
+	background: rgba(255,255,255,0.5);
+	padding: 1em;
+	z-index: 30;
+}
+table {
+	border-collapse: collapse;
+}
+.open {
+	display: block !important;
+}
+.closer {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	padding: 0.2em 0.5em;
+	cursor: pointer;
+}
+input#myname {
+	width: 8em;
+}
+input#website {
+	position: absolute;
+	left: -10000px;
 }

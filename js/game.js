@@ -171,9 +171,9 @@ function Tile(id) {
 			onStart: function(element) {
 				t.el.addClass("current");
 				// If parent is a filled place, make it unfilled:
-				if (t.el.getParent().hasClass('filled')) {
-					t.el.getParent().removeClass('filled');
-					findValidPlaces();
+				var parent = t.el.getParent();
+				if (parent.hasClass('filled')) {
+					unsetPlace(parent);
 				}
 				// First tile can be moved anywhere:
 				if (gameMode == 'move' && tileCount < 2) {
@@ -194,7 +194,7 @@ function Tile(id) {
 					// Drop it:
 					t.el.inject(droppable);
 					t.el.removeClass('current');
-					filledPlaces.erase(parseInt(droppable.id, 10));
+					filledPlaces.erase(parseInt(droppable.id));
 					console.log('t'+t.el.id+' dropped into '+droppable.id);
 
 					// Remove tile from bay if it came from there:
@@ -203,7 +203,8 @@ function Tile(id) {
 					}
 
 					// Complete special move if moved here from another board place:
-					if (!isFresh && droppable.id !== t.location) {
+					if (!isFresh && droppable.id !== 'p'+t.location) {
+						console.log(droppable.id, t.location);
 						hiddenScore -= 375;
 						updateState();
 						showMessage("You have been charged $375.");
@@ -240,9 +241,13 @@ function Tile(id) {
 	};
 
 	t.recycle = function() {
+		// Unset place:
+		var parent = t.el.getParent();
+		unsetPlace(parent);
 		// Take tile off the board:
 		t.toBank();
 		t.location = null;
+		// Admin:
 		hiddenScore -= 225;
 		updateState();
 		showMessage("Tile recycled.");
@@ -292,6 +297,7 @@ function updateState() {
 		setMode('finished');
         hiddenScore += 500;
 		calcScore();
+		displayNonZeroScores();
 		showHighscores();
 		return;
     }
@@ -304,7 +310,7 @@ function updateState() {
 	calcBoni();
 	// Messaging:
     setStatus();
-    showMessage(tileCount + " tiles played");
+    //showMessage(tileCount + " tiles played");		// BECAME ANNOYING
 }
 
 
@@ -340,14 +346,16 @@ function setStatus(message) {
     $('scorestatus').set('text', status);
 }
 
-function showMessage(msg, isSticky) {
-	isSticky = isSticky || false;
+function showMessage(msg, className, isSticky) {
+	if (typeof className == 'undefined') className = '';
+	if (typeof isSticky == 'undefined') isSticky = false;
 
     // Create a new message <p> element:
     var para = new Element('p', {
         styles: { 'opacity': 0, 'margin-top': '20px' },
         html: msg
-    }).inject($('messages'));
+    }).addClass(className)
+	  .inject($('messages'));
 
 	// Fade in & slide up:
     var anim = new Fx.Morph(para, {duration: 500});
@@ -366,7 +374,7 @@ function showMessage(msg, isSticky) {
 	// Make message cancel button:
 	else {
 		new Element('a', {
-			html: ' [cancel]',
+			html: '[cancel]',
 			styles: {'cursor': 'pointer'}
 		})
 		.addEvent('click', function() {
@@ -379,21 +387,6 @@ function showMessage(msg, isSticky) {
 
 function clearMessages() {
 	$('messages').set('html','');
-}
-
-function awardBonus(key) {
-	console.log("Awarding bonus", key);
-	var boni = {
-		1: {bonus: 100, msg: "Greenfields: $10 bonus awarded!"},
-		2: {bonus: 200, msg: "Expander: $20 bonus awarded!"},
-		3: {bonus: 300, msg: "Super Developer: $30 bonus awarded!"}
-	};
-	if (boni[key]) {
-		hiddenScore += boni[key].bonus;
-		showMessage(boni[key].msg);
-		// Unset bonus so it only unlocks once:
-		boni[key] = false;
-	}
 }
 
 
@@ -428,8 +421,17 @@ function findValidPlaces() {
 	return validPlaces;
 }
 
+function unsetPlace(place) {
+	place.removeClass('filled');
+	// Unset place value:
+	var placeId = parseInt(place.id.slice(1));
+	p[placeId].val = [0,0,0];
+	findValidPlaces();
+}
+
 function setMode(mode) {
 	$('gamearea').removeClass('move recycle');
+	clearMessages();
 
 	switch(mode) {
 		case 'move':
@@ -439,9 +441,7 @@ function setMode(mode) {
 			else if(tileCount > 0 && tileCount < 19) {
 				gameMode = mode;
 				$('gamearea').addClass(mode);
-				// Disable new tile drag
-				$('bayover').addClass('closed');
-				showMessage(mode + " mode enabled", true);
+				showMessage("Move mode enabled.", 'construction', true);
 			}
 			break;
 
@@ -452,23 +452,19 @@ function setMode(mode) {
 			else if (tileCount > 0) {
 				gameMode = mode;
 				$('gamearea').addClass(mode);
-				// Disable new tile drag
-				$('bayover').addClass('closed');
-				showMessage(mode + " mode enabled", true);
+				showMessage("Recycle mode enabled.", 'construction', true);
 			}
 			break;
 
 		case '':
-			clearMessages();
 			gameMode = '';
-			// Open bay:
-			$('bayover').removeClass('closed');
 			showMessage("mode disabled");
 			break;
 
 		case 'finished':
 			$('gamearea').addClass(mode);
 			gameMode = mode;
+			// Disable game menu:
 			$('menu').destroy();
 
 		default:
@@ -476,7 +472,7 @@ function setMode(mode) {
 	}
 }
 
-function undo() {
+function undo() {			// FIXME using game state history, not second-guessing last move
 	if (totalScore < 75) {
 		showMessage("You don't have $75.");
 	}
@@ -484,15 +480,16 @@ function undo() {
 		// Clear bay:
 		$$('#bay .tile').inject($('bank'));
 		bay = [];
-		// Reset last played tile:
+		// Reset last filled place:
 		var lastPlaceId = filledPlaces.pop();
 		$('p'+lastPlaceId).removeClass("filled");
+		p[lastPlaceId].val = [0,0,0];
+		// Tile back to bay:
 		chooseTile(lastTile.id);
 		hiddenScore -= 75;
 		updateState();
 	}
 }
-
 
 
 /************/
@@ -504,7 +501,7 @@ function undo() {
 	z = rising right (2,6,7)
 */
 
-var scores = {
+var tileScores = {
 	x1:0, x2:0, x3:0, x4:0, x5:0,
 	y1:0, y2:0, y3:0, y4:0, y5:0,
 	z1:0, z2:0, z3:0, z4:0, z5:0
@@ -513,6 +510,7 @@ var linesScore = 0;
 var hiddenScore = 0;
 var totalScore = 0;
 
+// Check whether a line of tiles all match:
 function lineSum(tiles, axis) {
     // Zeros are not valid:
     if (tiles[0].val[axis] === 0) return 0;
@@ -524,6 +522,7 @@ function lineSum(tiles, axis) {
     return tileSum(tiles, axis);
 }
 
+// Sum a line of tiles:
 function tileSum(tiles, axis) {
     var sum = tiles[0].val[axis];
     // Add all to first:
@@ -535,59 +534,51 @@ function tileSum(tiles, axis) {
 }
 
 function calcScore() {
+    tileScores.x1 = 10 * lineSum([p[11], p[12], p[13]], 0);
+    tileScores.x2 = 10 * lineSum([p[21], p[22], p[23], p[24]], 0);
+    tileScores.x3 = 10 * lineSum([p[31], p[32], p[33], p[34], p[35]], 0);
+    tileScores.x4 = 10 * lineSum([p[41], p[42], p[43], p[44]], 0);
+    tileScores.x5 = 10 * lineSum([p[51], p[52], p[53]], 0);
 
-    scores.x1 = 10 * lineSum([p[11], p[12], p[13]], 0);
-    scores.x2 = 10 * lineSum([p[21], p[22], p[23], p[24]], 0);
-    scores.x3 = 10 * lineSum([p[31], p[32], p[33], p[34], p[35]], 0);
-    scores.x4 = 10 * lineSum([p[41], p[42], p[43], p[44]], 0);
-    scores.x5 = 10 * lineSum([p[51], p[52], p[53]], 0);
+    tileScores.y1 = 10 * lineSum([p[31], p[41], p[51]], 1);
+    tileScores.y2 = 10 * lineSum([p[21], p[32], p[42], p[52]], 1);
+    tileScores.y3 = 10 * lineSum([p[11], p[22], p[33], p[43], p[53]], 1);
+    tileScores.y4 = 10 * lineSum([p[12], p[23], p[34], p[44]], 1);
+    tileScores.y5 = 10 * lineSum([p[13], p[24], p[35]], 1);
 
-    scores.y1 = 10 * lineSum([p[31], p[41], p[51]], 1);
-    scores.y2 = 10 * lineSum([p[21], p[32], p[42], p[52]], 1);
-    scores.y3 = 10 * lineSum([p[11], p[22], p[33], p[43], p[53]], 1);
-    scores.y4 = 10 * lineSum([p[12], p[23], p[34], p[44]], 1);
-    scores.y5 = 10 * lineSum([p[13], p[24], p[35]], 1);
-
-    scores.z1 = 10 * lineSum([p[11], p[21], p[31]], 2);
-    scores.z2 = 10 * lineSum([p[12], p[22], p[32], p[41]], 2);
-    scores.z3 = 10 * lineSum([p[13], p[23], p[33], p[42], p[51]], 2);
-    scores.z4 = 10 * lineSum([p[24], p[34], p[43], p[52]], 2);
-    scores.z5 = 10 * lineSum([p[35], p[44], p[53]], 2);
+    tileScores.z1 = 10 * lineSum([p[11], p[21], p[31]], 2);
+    tileScores.z2 = 10 * lineSum([p[12], p[22], p[32], p[41]], 2);
+    tileScores.z3 = 10 * lineSum([p[13], p[23], p[33], p[42], p[51]], 2);
+    tileScores.z4 = 10 * lineSum([p[24], p[34], p[43], p[52]], 2);
+    tileScores.z5 = 10 * lineSum([p[35], p[44], p[53]], 2);
 
 	// Reset and re-tally score:
 	linesScore = 0;
-	for (var i in scores) {
-		linesScore += scores[i];
+	for (var i in tileScores) {
+		linesScore += tileScores[i];
 	}
-}
-
-function calcBoni() {
-	// Count scoring lines:
-	var scoring = Object.values(scores).filter(val => val > 0).length;
-	if (scoring === 9) awardBonus(3);
-	else if (scoring === 6) awardBonus(2);
-	else if (scoring === 3) awardBonus(1);
+	return linesScore;
 }
 
 function displayNonZeroScores() {
     // Display line scores on edge tiles:
-    $('f14').set('text', scores.x1 > 0 ? '$' + scores.x1 : '');
-    $('f25').set('text', scores.x2 > 0 ? '$' + scores.x2 : '');
-    $('f36').set('text', scores.x3 > 0 ? '$' + scores.x3 : '');
-    $('f45').set('text', scores.x4 > 0 ? '$' + scores.x4 : '');
-    $('f54').set('text', scores.x5 > 0 ? '$' + scores.x5 : '');
+    $('f14').set('text', tileScores.x1 > 0 ? '$' + tileScores.x1 : '');
+    $('f25').set('text', tileScores.x2 > 0 ? '$' + tileScores.x2 : '');
+    $('f36').set('text', tileScores.x3 > 0 ? '$' + tileScores.x3 : '');
+    $('f45').set('text', tileScores.x4 > 0 ? '$' + tileScores.x4 : '');
+    $('f54').set('text', tileScores.x5 > 0 ? '$' + tileScores.x5 : '');
 
-    $('f20').set('text', scores.y1 > 0 ? '$' + scores.y1 : '');
-    $('f10').set('text', scores.y2 > 0 ? '$' + scores.y2 : '');
-    $('f00').set('text', scores.y3 > 0 ? '$' + scores.y3 : '');
-    $('f01').set('text', scores.y4 > 0 ? '$' + scores.y4 : '');
-    $('f02').set('text', scores.y5 > 0 ? '$' + scores.y5 : '');
+    $('f20').set('text', tileScores.y1 > 0 ? '$' + tileScores.y1 : '');
+    $('f10').set('text', tileScores.y2 > 0 ? '$' + tileScores.y2 : '');
+    $('f00').set('text', tileScores.y3 > 0 ? '$' + tileScores.y3 : '');
+    $('f01').set('text', tileScores.y4 > 0 ? '$' + tileScores.y4 : '');
+    $('f02').set('text', tileScores.y5 > 0 ? '$' + tileScores.y5 : '');
 
-    $('f40').set('text', scores.z1 > 0 ? '$' + scores.z1 : '');
-    $('f50').set('text', scores.z2 > 0 ? '$' + scores.z2 : '');
-    $('f60').set('text', scores.z3 > 0 ? '$' + scores.z3 : '');
-    $('f61').set('text', scores.z4 > 0 ? '$' + scores.z4 : '');
-    $('f62').set('text', scores.z5 > 0 ? '$' + scores.z5 : '');
+    $('f40').set('text', tileScores.z1 > 0 ? '$' + tileScores.z1 : '');
+    $('f50').set('text', tileScores.z2 > 0 ? '$' + tileScores.z2 : '');
+    $('f60').set('text', tileScores.z3 > 0 ? '$' + tileScores.z3 : '');
+    $('f61').set('text', tileScores.z4 > 0 ? '$' + tileScores.z4 : '');
+    $('f62').set('text', tileScores.z5 > 0 ? '$' + tileScores.z5 : '');
 
     // Style edge tiles:
     $$('.edge').each(function(el) {
@@ -604,6 +595,28 @@ function displayNonZeroScores() {
 	$('score').set('text', '$' + totalScore);
 }
 
+function calcBoni() {
+	// Count scoring lines:
+	var scoring = Object.values(tileScores).filter(val => val > 0).length;
+	if (scoring === 9) awardBonus(3);
+	else if (scoring === 6) awardBonus(2);
+	else if (scoring === 3) awardBonus(1);
+}
+
+function awardBonus(key) {
+	console.log("Awarding bonus", key);
+	var boni = {
+		1: {bonus: 100, msg: "Greenfields: $10 bonus awarded!"},
+		2: {bonus: 200, msg: "Expander: $20 bonus awarded!"},
+		3: {bonus: 300, msg: "Super Developer: $30 bonus awarded!"}
+	};
+	if (boni[key]) {
+		hiddenScore += boni[key].bonus;
+		showMessage(boni[key].msg);
+		// Unset bonus so it only unlocks once:
+		boni[key] = false;
+	}
+}
 
 
 /*****************/
@@ -715,14 +728,12 @@ window.addEvent('domready', function() {
 	});
 
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
-		placeId = parseInt(target.getParent().id.slice(1), 10);
+		placeId = parseInt(target.getParent().id.slice(1));
 		console.log(target.id, placeId);
 
 		// Recycling a placed tile:
 		if ($('gamearea').hasClass('recycle')) {
-			console.log(filledPlaces.length);
 			filledPlaces.erase(placeId);
-			console.log(filledPlaces.length);
 			$('p'+placeId).removeClass('filled').addClass('valid');
 			// Do it:
 			thisTile = allTiles[target.id.slice(1)];
