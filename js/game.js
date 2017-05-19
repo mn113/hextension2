@@ -702,9 +702,9 @@ window.addEvent('domready', function() {
 		// Recycling a placed tile:
 		if ($('gamearea').hasClass('recycle')) {
 			console.log(filledPlaces.length);
-			filledPlaces.erase(placeId);		// FIXME
+			filledPlaces.erase(placeId);
 			console.log(filledPlaces.length);
-			$('p'+placeId).addClass('valid');
+			$('p'+placeId).removeClass('filled').addClass('valid');
 			// Do it:
 			thisTile = allTiles[target.id.slice(1)];
 			thisTile.recycle();
