@@ -59,6 +59,12 @@ var lastTile;
 
 var gameMode = '';	// '' || 'move' || 'recycle' || 'finished'
 
+var costs = {
+	undo: 75,
+	recycle: 225,
+	move: 375
+}
+
 var user = {
 	ip: myip,	// should be ready from previous script... maybe
 	country: ''
@@ -301,17 +307,6 @@ function updateState() {
     showMessage(tileCount + " tiles played");
 }
 
-function undo() {
-	// Clear bay:
-	$$('#bay .tile').inject($('bank'));
-	bay = [];
-	// Reset last played tile:
-	var lastPlaceId = filledPlaces.pop();
-	$('p'+lastPlaceId).removeClass("filled");
-	chooseTile(lastTile.id);
-	updateState();
-}
-
 
 /*********************/
 /*! VISUAL FUNCTIONS */
@@ -438,7 +433,10 @@ function setMode(mode) {
 
 	switch(mode) {
 		case 'move':
-			if (tileCount > 0 && tileCount < 19) {
+			if (totalScore < 375) {
+				showMessage("You don't have $375.");
+			}
+			else if(tileCount > 0 && tileCount < 19) {
 				gameMode = mode;
 				$('gamearea').addClass(mode);
 				// Disable new tile drag
@@ -448,7 +446,10 @@ function setMode(mode) {
 			break;
 
 		case 'recycle':
-			if (tileCount > 0) {
+			if (totalScore < 225) {
+				showMessage("You don't have $225.");
+			}
+			else if (tileCount > 0) {
 				gameMode = mode;
 				$('gamearea').addClass(mode);
 				// Disable new tile drag
@@ -474,6 +475,24 @@ function setMode(mode) {
 			break;
 	}
 }
+
+function undo() {
+	if (totalScore < 75) {
+		showMessage("You don't have $75.");
+	}
+	else {
+		// Clear bay:
+		$$('#bay .tile').inject($('bank'));
+		bay = [];
+		// Reset last played tile:
+		var lastPlaceId = filledPlaces.pop();
+		$('p'+lastPlaceId).removeClass("filled");
+		chooseTile(lastTile.id);
+		hiddenScore -= 75;
+		updateState();
+	}
+}
+
 
 
 /************/
@@ -730,6 +749,14 @@ window.addEvent('domready', function() {
 		user.name = this.name;
 		user.score = totalScore;
 		submitScore();
+	});
+
+	// Key listeners:
+	document.addEvent('keydown', function(e) {
+		if (e.code == 77) setMode('move');						// 'm'
+		if (e.code == 82) setMode('recycle');					// 'r'
+		if (e.code == 85) undo();								// 'u'
+		if (e.code == 81) hiddenScore += 100; displayNonZeroScores();		// 'q'
 	});
 
 });
