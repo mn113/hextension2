@@ -261,7 +261,7 @@ function updateState() {
         // Finishing bonus:
         setStatus("Game Complete!");
 		showHighscores();
-        hiddenScore += 50;
+        hiddenScore += 500;
     }
 	else if (bay.length === 0) {
 		chooseTile();
@@ -310,16 +310,16 @@ function setStatus(message) {
 	}
 	// Score-reflecting mode:
     var statuses = {
-        10: 'Getting going...',
-        30: 'Looking good...',
-        50: 'Nice work!',
-        70: 'Cha-ching!',
-        90: 'Keep it coming!',
-        110: 'Make it rain baby!',
-        150: 'You da man!',
-        200: 'Mastering it...',
-        300: 'Hex fiend!',
-        500: 'Hexual Ceiling!'
+        100: 'Getting going...',
+        300: 'Looking good...',
+        500: 'Nice work!',
+        700: 'Cha-ching!',
+        900: 'Keep it coming!',
+        1100: 'Make it rain baby!',
+        1500: 'You da man!',
+        2000: 'Mastering it...',
+        3000: 'Hex fiend!',
+        5000: 'Hexual Ceiling!'
     };
     var status = "";
     // Find our current level:
@@ -375,9 +375,9 @@ function clearMessages() {
 function awardBonus(key) {
 	console.log("Awarding bonus", key);
 	var boni = {
-		1: {bonus: 10, msg: "Greenfields: $10 bonus awarded!"},
-		2: {bonus: 20, msg: "Expander: $20 bonus awarded!"},
-		3: {bonus: 30, msg: "Super Developer: $30 bonus awarded!"}
+		1: {bonus: 100, msg: "Greenfields: $10 bonus awarded!"},
+		2: {bonus: 200, msg: "Expander: $20 bonus awarded!"},
+		3: {bonus: 300, msg: "Super Developer: $30 bonus awarded!"}
 	};
 	if (boni[key]) {
 		hiddenScore += boni[key].bonus;
@@ -471,22 +471,22 @@ var linesScore = 0;
 var hiddenScore = 0;
 var totalScore = 0;
 
-function lineSum(tiles, prop) {
+function lineSum(tiles, axis) {
     // Zeros are not valid:
-    if (tiles[0].val[prop] === 0) return 0;
+    if (tiles[0].val[axis] === 0) return 0;
     // Check all against first:
     for (var i = 1; i < tiles.length; i++) {
-        if (tiles[i].val[prop] !== tiles[0].val[prop]) return 0;
+        if (tiles[i].val[axis] !== tiles[0].val[axis]) return 0;
     }
-    // All were equal if we got this far:
-    return tileSum(tiles, prop);
+    // All tiles matched in value if we got this far:
+    return tileSum(tiles, axis);
 }
 
-function tileSum(tiles, prop) {
-    var sum = tiles[0].val[prop];
+function tileSum(tiles, axis) {
+    var sum = tiles[0].val[axis];
     // Add all to first:
     for (var i = 1; i < tiles.length; i++) {
-        sum += tiles[i].val[prop];
+        sum += tiles[i].val[axis];
     }
     // All were equal if we got this far:
     return sum;
@@ -494,23 +494,23 @@ function tileSum(tiles, prop) {
 
 function calcScore() {
 
-    scores.x1 = lineSum([p[11], p[12], p[13]], 0);
-    scores.x2 = lineSum([p[21], p[22], p[23], p[24]], 0);
-    scores.x3 = lineSum([p[31], p[32], p[33], p[34], p[35]], 0);
-    scores.x4 = lineSum([p[41], p[42], p[43], p[44]], 0);
-    scores.x5 = lineSum([p[51], p[52], p[53]], 0);
+    scores.x1 = 10 * lineSum([p[11], p[12], p[13]], 0);
+    scores.x2 = 10 * lineSum([p[21], p[22], p[23], p[24]], 0);
+    scores.x3 = 10 * lineSum([p[31], p[32], p[33], p[34], p[35]], 0);
+    scores.x4 = 10 * lineSum([p[41], p[42], p[43], p[44]], 0);
+    scores.x5 = 10 * lineSum([p[51], p[52], p[53]], 0);
 
-    scores.y1 = lineSum([p[31], p[41], p[51]], 1);
-    scores.y2 = lineSum([p[21], p[32], p[42], p[52]], 1);
-    scores.y3 = lineSum([p[11], p[22], p[33], p[43], p[53]], 1);
-    scores.y4 = lineSum([p[12], p[23], p[34], p[44]], 1);
-    scores.y5 = lineSum([p[13], p[24], p[35]], 1);
+    scores.y1 = 10 * lineSum([p[31], p[41], p[51]], 1);
+    scores.y2 = 10 * lineSum([p[21], p[32], p[42], p[52]], 1);
+    scores.y3 = 10 * lineSum([p[11], p[22], p[33], p[43], p[53]], 1);
+    scores.y4 = 10 * lineSum([p[12], p[23], p[34], p[44]], 1);
+    scores.y5 = 10 * lineSum([p[13], p[24], p[35]], 1);
 
-    scores.z1 = lineSum([p[11], p[21], p[31]], 2);
-    scores.z2 = lineSum([p[12], p[22], p[32], p[41]], 2);
-    scores.z3 = lineSum([p[13], p[23], p[33], p[42], p[51]], 2);
-    scores.z4 = lineSum([p[24], p[34], p[43], p[52]], 2);
-    scores.z5 = lineSum([p[35], p[44], p[53]], 2);
+    scores.z1 = 10 * lineSum([p[11], p[21], p[31]], 2);
+    scores.z2 = 10 * lineSum([p[12], p[22], p[32], p[41]], 2);
+    scores.z3 = 10 * lineSum([p[13], p[23], p[33], p[42], p[51]], 2);
+    scores.z4 = 10 * lineSum([p[24], p[34], p[43], p[52]], 2);
+    scores.z5 = 10 * lineSum([p[35], p[44], p[53]], 2);
 
 	// Reset and re-tally score:
 	linesScore = 0;
@@ -680,21 +680,23 @@ window.addEvent('domready', function() {
 		if ($('gamearea').hasClass('recycle')) {
 			filledPlaces.erase(placeId);
 			// Do it:
-			allTiles[target.id.slice(1)].recycle();
-			hiddenScore -= 25;
+			thisTile = allTiles[target.id.slice(1)]
+			thisTile.recycle();
+			hiddenScore -= 225;
 			updateState();
 			showMessage("Tile recycled.");
-			showMessage("You have been charged $25.");
+			showMessage("You have been charged $225.");
 		}
 		// Moving a placed tile:
 		else if ($('gamearea').hasClass('move')) {
 			filledPlaces.erase(placeId);
 			$('p'+placeId).addClass('valid');
 			// Do it:
-			allTiles[target.id.slice(1)].move();
-			hiddenScore -= 40;
+			thisTile = allTiles[target.id.slice(1)]
+			thisTile.move();
+			hiddenScore -= 375;
 			updateState();
-			showMessage("You have been charged $40.");
+			showMessage("You have been charged $375.");
 			showMessage("Drag the tile to an empty space.");
 		}
 		// Clear special mode:
@@ -708,7 +710,7 @@ window.addEvent('domready', function() {
 		console.log(this);
 		// User object gains name from form & score from game:
 		user.name = this.name;
-		user.score = totalScore;	// TODO: store on user
+		user.score = totalScore;
 		submitScore();
 	});
 

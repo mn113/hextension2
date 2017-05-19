@@ -4,56 +4,56 @@
 		"ip": "95.143.193.193",
 		"country": "SE",
 		"name": "Martin",
-		"score": 200
+		"score": 2000
 	},
 	{
 		"timestamp": "2017-05-17 22:59:00 BST",
 		"ip": "95.143.193.193",
 		"country": "UK",
 		"name": "Janine",
-		"score": 153
+		"score": 1530
 	},
 	{
 		"timestamp": "2017-02-06T09:32:28 -00:00",
 		"ip": "186.218.91.173",
 		"country": "IT",
 		"name": "Gonzalo",
-		"score": 172
+		"score": 1720
 	},
 	{
 		"timestamp": "2017-05-11T06:29:01 -01:00",
 		"ip": "56.166.81.250",
 		"country": "BH",
 		"name": "Suzanne",
-		"score": 75
+		"score": 750
 	},
 	{
 		"timestamp": "2017-02-13T03:38:31 -00:00",
 		"ip": "46.244.139.73",
 		"country": "US",
 		"name": "Morin",
-		"score": 118
+		"score": 1180
 	},
 	{
 		"timestamp": "2017-01-02T02:38:45 -00:00",
 		"ip": "48.207.62.186",
 		"country": "FI",
 		"name": "Crane",
-		"score": 198
+		"score": 1980
 	},
 	{
 		"timestamp": "2017-01-28T10:45:26 -00:00",
 		"ip": "89.1.146.21",
 		"country": "ES",
 		"name": "Potter",
-		"score": 127
+		"score": 1270
 	},
 	{
 		"timestamp": "2017-05-15T03:04:15 -01:00",
 		"ip": "90.170.132.233",
 		"country": "DE",
 		"name": "Sonia",
-		"score": 229
+		"score": 2290
 	},
 	{
 		"timestamp": "2017-02-09T02:25:58 -00:00",
