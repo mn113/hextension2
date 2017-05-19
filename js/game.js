@@ -57,7 +57,7 @@ var tileCount = 0;
 
 var lastTile;
 
-var gameMode = '';	// '' || 'move' || 'recycle'
+var gameMode = '';	// '' || 'move' || 'recycle' || 'finished'
 
 var user = {
 	ip: myip,	// should be ready from previous script... maybe
@@ -152,7 +152,7 @@ function Tile(id) {
 		new Fx.Reveal(t.getElement(), {duration: 750, transitionOpacity: true}).reveal();
 	};
 
-	t.makeDraggable = function() {
+	t.makeDraggable = function(isFresh) {
 		// Set up draggability:
 		t.tileDrag = new Drag.Move(t.el, {
 			droppables: $$('.valid'),
@@ -181,20 +181,34 @@ function Tile(id) {
 				else {
 					// Remove draggability:
 					t.tileDrag.detach();
+
 					// Drop it:
-					filledPlaces.erase(t.location);
-					console.log('t'+t.el.id+' dropped into '+droppable.id);
 					t.el.inject(droppable);
 					t.el.removeClass('current');
-					bay.splice(t.el);
+					filledPlaces.erase(parseInt(droppable.id, 10));
+					console.log('t'+t.el.id+' dropped into '+droppable.id);
+
+					// Remove tile from bay if it came from there:
+					if (isFresh) {
+						bay.splice(t.el);
+					}
+
+					// Complete special move if moved here from another board place:
+					if (!isFresh && droppable.id !== t.location) {
+						hiddenScore -= 375;
+						updateState();
+						showMessage("You have been charged $375.");
+					}
+
 					// Store the tile's values:
 					t.addToBoard(parseInt(droppable.get('id').slice(1))); 	// e.g. 53;
+
+					// Zero tile position if on board place:
+					t.el.setStyles({
+						'top': '-36px',	// WORKS FOR BOARD, NOT BAY
+						'left': 0
+					});
 				}
-				// Zero tile position whether in bay or in board place:
-				t.el.setStyles({
-					'top': '-36px',	// WORKS FOR BOARD, NOT BAY
-					'left': 0
-				});
 			}
 		});
 	};
@@ -219,10 +233,17 @@ function Tile(id) {
 	t.recycle = function() {
 		// Take tile off the board:
 		t.toBank();
+		t.location = null;
+		hiddenScore -= 225;
+		updateState();
+		showMessage("Tile recycled.");
+		showMessage("You have been charged $225.");
 	};
 
 	t.move = function() {
-		t.makeDraggable();
+		showMessage("Drag the tile to an empty space.");
+		t.makeDraggable(false);
+		// The rest happens only on drop...
 	};
 
 	return t;		// Export the module
@@ -248,7 +269,7 @@ function chooseTile(id) {
 	// Transfer chosen tile to the bay & make fully draggable:
 	myTile.toBay();
     myTile.upNext();
-    myTile.makeDraggable();
+    myTile.makeDraggable(true);
 }
 
 function updateState() {
@@ -260,8 +281,11 @@ function updateState() {
     if (tileCount === 19) {
         // Finishing bonus:
         setStatus("Game Complete!");
-		showHighscores();
+		setMode('finished');
         hiddenScore += 500;
+		calcScore();
+		showHighscores();
+		return;
     }
 	else if (bay.length === 0) {
 		chooseTile();
@@ -282,20 +306,8 @@ function undo() {
 	// Reset last played tile:
 	var lastPlace = filledPlaces.pop();
 	$('p'+lastPlace).removeClass("filled");
-	//lastTile.upNext();
-	//lastTile.makeDraggable();
+	updateState();
 	chooseTile(lastTile);
-	updateState();
-}
-
-function moveTile(id) {
-
-	updateState();
-}
-
-function recycleTile(id) {
-
-	updateState();
 }
 
 
@@ -392,26 +404,24 @@ function awardBonus(key) {
 /*! BOARD FUNCTIONS */
 /********************/
 function findValidPlaces() {
+	// Remove all valid classes:
+	$$('#board .place').removeClass('valid');
 	var validPlaces = [];
-	if (tileCount > 0) {	// because all valid on first turn
-		// Remove all valid classes:
-		$$('#board .place').removeClass('valid');
 
-		var fl = filledPlaces.length;
-		// Combine all the sets of neighbours
-		for (var i=0; i < fl; i++) {
-			validPlaces.combine(p[filledPlaces[i]].nb);
-		}
-		// Then erase the already filled places
-		for (var j=0; j < fl; j++) {
-			validPlaces.erase(filledPlaces[j]);
-		}
-		// Convert the locations (e.g. '11') to HTML elements (<div id="p11"...)
-		validPlaces.forEach(function(id) {
-			$('p'+id).addClass('valid');
-		});
+	var fl = filledPlaces.length;
+	// Combine all the sets of neighbours:
+	for (var i=0; i < fl; i++) {
+		validPlaces.combine(p[filledPlaces[i]].nb);
 	}
-	console.log($$('.valid').length + " valid places");
+	// Then erase the already filled places:
+	for (var j=0; j < fl; j++) {
+		validPlaces.erase(filledPlaces[j]);
+	}
+	// Convert the locations (e.g. '11') to HTML elements (<div id="p11"...):
+	validPlaces.forEach(function(id) {
+		$('p'+id).addClass('valid');
+	});
+
 	return validPlaces;
 }
 
@@ -446,6 +456,11 @@ function setMode(mode) {
 			$('bayover').removeClass('closed');
 			showMessage("mode disabled");
 			break;
+
+		case 'finished':
+			$('gamearea').addClass(mode);
+			gameMode = mode;
+			$('menu').destroy();
 
 		default:
 			break;
@@ -673,31 +688,26 @@ window.addEvent('domready', function() {
 	});
 
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
-		placeId = target.getParent().id.slice(1);
+		placeId = parseInt(target.getParent().id.slice(1), 10);
 		console.log(target.id, placeId);
 
 		// Recycling a placed tile:
 		if ($('gamearea').hasClass('recycle')) {
-			filledPlaces.erase(placeId);
+			console.log(filledPlaces.length);
+			filledPlaces.erase(placeId);		// FIXME
+			console.log(filledPlaces.length);
+			$('p'+placeId).addClass('valid');
 			// Do it:
-			thisTile = allTiles[target.id.slice(1)]
+			thisTile = allTiles[target.id.slice(1)];
 			thisTile.recycle();
-			hiddenScore -= 225;
-			updateState();
-			showMessage("Tile recycled.");
-			showMessage("You have been charged $225.");
 		}
 		// Moving a placed tile:
 		else if ($('gamearea').hasClass('move')) {
 			filledPlaces.erase(placeId);
 			$('p'+placeId).addClass('valid');
 			// Do it:
-			thisTile = allTiles[target.id.slice(1)]
+			thisTile = allTiles[target.id.slice(1)];
 			thisTile.move();
-			hiddenScore -= 375;
-			updateState();
-			showMessage("You have been charged $375.");
-			showMessage("Drag the tile to an empty space.");
 		}
 		// Clear special mode:
 		setMode('');
