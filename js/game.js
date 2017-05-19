@@ -17,13 +17,10 @@
 
 var gamearea = $('gamearea');
 
-var boardCoords = [11,12,13,21,22,23,24,31,32,33,34,35,41,42,43,44,51,52,53];
-var edgeCoords =  ['00','01','02','03',10,14,20,25,30,36,40,45,50,54,60,61,62,63];  // ADD 1 to eliminate strings?
-
 var filledPlaces = [];	// add to it each turn
 var bay = [];			// must only contain 1 tile
 
-var p = {		// could be combined with boardCoords
+var p = {
 	11: {val: [0,0,0], nb: [21,22,12]},
 	12: {val: [0,0,0], nb: [11,22,23,13]},
 	13: {val: [0,0,0], nb: [12,23,24]},
@@ -95,6 +92,7 @@ function generateTiles() {
 
 function generateBoard() {
     // Places:
+    var boardCoords = Object.keys(p);
 	for (var a=0; a < boardCoords.length; a++) {
 		// Create html element:
 		var place = new Element('div', {
@@ -106,6 +104,7 @@ function generateBoard() {
 	}
 
     // Edge tiles:
+	var edgeCoords =  ['00','01','02','03',10,14,20,25,30,36,40,45,50,54,60,61,62,63];  // ADD 1 to eliminate strings?
     for (var b=0; b < edgeCoords.length; b++) {
 		// Create html element:
 		var edge = new Element('div', {
@@ -205,9 +204,9 @@ function Tile(id) {
 					// Complete special move if moved here from another board place:
 					if (!isFresh && droppable.id !== 'p'+t.location) {
 						console.log(droppable.id, t.location);
-						hiddenScore -= 375;
+						hiddenScore -= costs.move;
 						updateState();
-						showMessage("You have been charged $375.");
+						showMessage("You have been charged $"+costs.move);
 					}
 
 					// Store the tile's values:
@@ -248,10 +247,10 @@ function Tile(id) {
 		t.toBank();
 		t.location = null;
 		// Admin:
-		hiddenScore -= 225;
+		hiddenScore -= costs.recycle;
 		updateState();
 		showMessage("Tile recycled.");
-		showMessage("You have been charged $225.");
+		showMessage("You have been charged $"+costs.recycle);
 	};
 
 	t.move = function() {
@@ -410,7 +409,7 @@ function findValidPlaces() {
 		}
 	}
 	else {	// All valid
-		validPlaces = boardCoords;
+		validPlaces = Object.keys(p);
 	}
 
 	// Convert the locations (e.g. '11') to HTML elements (<div id="p11"...):
@@ -435,8 +434,8 @@ function setMode(mode) {
 
 	switch(mode) {
 		case 'move':
-			if (totalScore < 375) {
-				showMessage("You don't have $375.");
+			if (totalScore < costs.move) {
+				showMessage("You don't have $costs.move.");
 			}
 			else if(tileCount > 0 && tileCount < 19) {
 				gameMode = mode;
@@ -446,8 +445,8 @@ function setMode(mode) {
 			break;
 
 		case 'recycle':
-			if (totalScore < 225) {
-				showMessage("You don't have $225.");
+			if (totalScore < costs.recycle) {
+				showMessage("You don't have $"+costs.recycle);
 			}
 			else if (tileCount > 0) {
 				gameMode = mode;
@@ -473,8 +472,8 @@ function setMode(mode) {
 }
 
 function undo() {			// FIXME using game state history, not second-guessing last move
-	if (totalScore < 75) {
-		showMessage("You don't have $75.");
+	if (totalScore < costs.undo) {
+		showMessage("You don't have $"+costs.undo);
 	}
 	else {
 		// Clear bay:
@@ -486,7 +485,7 @@ function undo() {			// FIXME using game state history, not second-guessing last 
 		p[lastPlaceId].val = [0,0,0];
 		// Tile back to bay:
 		chooseTile(lastTile.id);
-		hiddenScore -= 75;
+		hiddenScore -= costs.undo;
 		updateState();
 	}
 }
