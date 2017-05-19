@@ -118,6 +118,8 @@ function generateBoard() {
 function Tile(id) {
 	var t = {};		// returnable
 
+	t.id = id;
+
 	t.values = [parseInt(id[0]), parseInt(id[1]), parseInt(id[2])];	// x,y,z
 
 	// Create the tile's html element:
@@ -135,6 +137,7 @@ function Tile(id) {
 
 	t.toBay = function() {
 		t.el.inject($('bay'));
+		bay.push(t);
 	};
 
 	t.toBank = function() {
@@ -260,8 +263,7 @@ function chooseTile(id) {
 	}
 	else {
 		// Select a random tile from the invisible bank:
-		var tiles = $$('#bank .tile');
-		domTile = tiles.getRandom();
+		domTile = $$('#bank .tile').getRandom();
 	}
 	// Select Tile object with that id (chop the 't'):
 	var myTile = allTiles[domTile.get("id").slice(1)];
@@ -304,10 +306,10 @@ function undo() {
 	$$('#bay .tile').inject($('bank'));
 	bay = [];
 	// Reset last played tile:
-	var lastPlace = filledPlaces.pop();
-	$('p'+lastPlace).removeClass("filled");
+	var lastPlaceId = filledPlaces.pop();
+	$('p'+lastPlaceId).removeClass("filled");
+	chooseTile(lastTile.id);
 	updateState();
-	chooseTile(lastTile);
 }
 
 
@@ -408,15 +410,21 @@ function findValidPlaces() {
 	$$('#board .place').removeClass('valid');
 	var validPlaces = [];
 
-	var fl = filledPlaces.length;
-	// Combine all the sets of neighbours:
-	for (var i=0; i < fl; i++) {
-		validPlaces.combine(p[filledPlaces[i]].nb);
+	if (filledPlaces.length > 0) {
+		var fl = filledPlaces.length;
+		// Combine all the sets of neighbours:
+		for (var i=0; i < fl; i++) {
+			validPlaces.combine(p[filledPlaces[i]].nb);
+		}
+		// Then erase the already filled places:
+		for (var j=0; j < fl; j++) {
+			validPlaces.erase(filledPlaces[j]);
+		}
 	}
-	// Then erase the already filled places:
-	for (var j=0; j < fl; j++) {
-		validPlaces.erase(filledPlaces[j]);
+	else {	// All valid
+		validPlaces = boardCoords;
 	}
+
 	// Convert the locations (e.g. '11') to HTML elements (<div id="p11"...):
 	validPlaces.forEach(function(id) {
 		$('p'+id).addClass('valid');
