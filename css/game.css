@@ -197,6 +197,12 @@ dd {
 #p52 {top: 181px; left: 405px; z-index:6}
 #p53 {top: 235px; left: 405px; z-index:8}
 
+/* must override above z-indexes */
+.place.floaty {
+	z-index: 15 !important;
+	background: none;
+}
+
 .edge {
     background: url(../img/tiles/base-tile.png) no-repeat;
     padding-top: 35px;

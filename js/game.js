@@ -15,8 +15,6 @@
           \____/
 */
 
-var gamearea = $('gamearea');
-
 var filledPlaces = [];	// add to it each turn
 var bay = [];			// must only contain 1 tile
 
@@ -59,7 +57,7 @@ var gameMode = '';	// '' || 'move' || 'recycle' || 'finished'
 var costs = {
 	undo: 75,
 	recycle: 225,
-	move: 375
+	move: 10
 }
 
 var user = {
@@ -164,25 +162,27 @@ function Tile(id) {
 		// Set up draggability:
 		t.tileDrag = new Drag.Move(t.el, {
 			droppables: $$('.valid'),
-			container: gamearea,
+			container: $('gamearea'),
 			precalculate: true,		// improves performance
 			snap: 10,
 			onStart: function(element) {
 				t.el.addClass("current");
-				// If parent is a filled place, make it unfilled:
-				var parent = t.el.getParent();
-				if (parent.hasClass('filled')) {
-					unsetPlace(parent);
-				}
 				// First tile can be moved anywhere:
 				if (gameMode == 'move' && tileCount < 2) {
 					$$('#board .place').addClass('valid');
+				}
+				// Need to detach moving tile from its parent to have flexible z-index:
+				if (!isFresh) {
+					var parent = t.el.getParent();
+					// If parent is a filled place, make it unfilled:
+					unsetPlace(parent);
+					// Begin float:
+					parent.addClass('floaty'); 	// raises z-index to 15
 				}
 			},
 			onDrop: function(element, droppable) {
 				// Can we really drop here?
 				if (!droppable || !droppable.hasClass('valid')) {
-					console.log(droppable);
 					t.springBack();
 				}
 				// If dropped on board place:
@@ -194,30 +194,24 @@ function Tile(id) {
 					t.el.inject(droppable);
 					t.el.removeClass('current');
 					filledPlaces.erase(parseInt(droppable.id));
-					console.log('t'+t.el.id+' dropped into '+droppable.id);
+					console.log(t.el.id+' dropped into '+droppable.id);
 
 					// Remove tile from bay if it came from there:
 					if (isFresh) {
 						bay.splice(t.el);
 					}
-
 					// Complete special move if moved here from another board place:
-					if (!isFresh && droppable.id !== 'p'+t.location) {
-						console.log(droppable.id, t.location);
+					else if (droppable.id !== 'p'+t.location) {
+						// Charge:
 						hiddenScore -= costs.move;
-						updateState();
 						showMessage("You have been charged $"+costs.move);
+						updateState();
 					}
-
 					// Store the tile's values:
 					t.addToBoard(parseInt(droppable.get('id').slice(1))); 	// e.g. 53;
-
-					// Zero tile position if on board place:
-					t.el.setStyles({
-						'top': '-36px',	// WORKS FOR BOARD, NOT BAY
-						'left': 0
-					});
 				}
+				// Reset all floatiness:
+				$$('.place').removeClass('floaty');
 			}
 		});
 	};
@@ -236,6 +230,12 @@ function Tile(id) {
 		// Store location on tile:
 		t.location = location;
 		lastTile = t;
+		// Zero tile position if on board place:
+		console.log("Setting top: -36px");
+		t.el.setStyles({
+			'top': '-36px',	// WORKS FOR BOARD, NOT BAY
+			'left': 0
+		});
 		updateState();
 	};
 
@@ -255,8 +255,9 @@ function Tile(id) {
 
 	t.move = function() {
 		showMessage("Drag the tile to an empty space.");
-		t.makeDraggable(false);
-		// The rest happens only on drop...
+		t.el.setStyles({top: '-54px'});
+		t.makeDraggable(false);	// pass in old parent
+		// The rest of the special move happens only on drop...
 	};
 
 	return t;		// Export the module
@@ -279,7 +280,6 @@ function chooseTile(id) {
 	var myTile = allTiles[domTile.get("id").slice(1)];
 	console.log(myTile);
 	// Transfer chosen tile to the bay & make fully draggable:
-	myTile.toBay();
     myTile.upNext();
     myTile.makeDraggable(true);
 }
