@@ -1,13 +1,13 @@
 [
 	{
-		"timestamp": "2017-05-17 22:36:00 BST",
+		"timestamp": "2017-05-17T22:36:00 -00:00",
 		"ip": "95.143.193.193",
 		"country": "SE",
 		"name": "Martin",
 		"score": 2000
 	},
 	{
-		"timestamp": "2017-05-17 22:59:00 BST",
+		"timestamp": "2017-05-17T22:59:00 -00:00",
 		"ip": "95.143.193.193",
 		"country": "UK",
 		"name": "Janine",

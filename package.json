@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
+  "repository": "https://github.com/mn113/hextension",
   "author": "Martin Nicholson",
   "license": "MIT",
   "dependencies": {

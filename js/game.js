@@ -65,6 +65,8 @@ var user = {
 	country: ''
 };
 
+var timeagoInstance = timeago();
+
 
 /******************/
 /*! GENERATE GAME */
@@ -642,9 +644,12 @@ function showHighscores() {
 				new Element('td', { html: entry.country }).inject(tr);
 				new Element('td', { html: entry.name }).inject(tr);
 				new Element('td', { html: entry.score }).inject(tr);
+				new Element('td', { datetime: entry.timestamp, class: 'time' }).inject(tr);
 				//  Insert into document:
 				tr.inject($('highscores').getElement('tbody'));
 			});
+			// Fuzzify timestamps:
+			timeagoInstance.render($$('.time'));
 			$('highscores').addClass('open');
 		}
 	}).send();
