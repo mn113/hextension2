@@ -632,15 +632,10 @@ function showHighscores() {
 	$('highscores').getElement('tbody').set('html','');
 
 	new Request.JSON({
-		log: true,
-		method: 'get',
-		url: 'http://localhost:3000/api/scores/10',	//data/scores.json',
-		onRequest: function() {
-			console.log(this);
-		},
+		method: 'GET',
+		url: 'http://localhost:3000/api/scores/10',
 		onComplete: function(entries) {
 			console.log(entries);
-			entries.sortBy('-score');
 			entries.forEach(function(entry) {
 				// Build up a table row:
 				var tr = new Element('tr');
@@ -655,26 +650,8 @@ function showHighscores() {
 	}).send();
 }
 
-function geoLookup() {
-	// IP test:
-	new Request.JSONP({
-		log: true,
-	//	url: 'http://jsonip.com/',
-		url: 'http://freegeoip.net/json',	// works when not ad-blocked
-	//	url: 'http://api.ipify.org?format=jsonp',
-		callbackKey: 'callback',
-		onRequest: function() {
-			console.log('...');
-		},
-		onComplete: function(data) {
-			console.log('1', data);
-			user.ip = data.ip;
-			user.country = data.country_code;
-		}
-	}).send();
-}
-
-function newRecord() {
+// Post to API when a game is started (record IP, date, gameID)
+function createRecord() {
 	user.session = '';
 	user.timestamp = new Date();
 
@@ -687,18 +664,27 @@ function newRecord() {
 	}).send();
 }
 
-function submitScore(user) {
+// Post a new score record or update existing gameID?
+function submitScore() {
+	// User object gains name from form & score from game:
+	user.name = 'Billy';
+	user.score = totalScore;
+	//
 	user.timestamp = new Date();
+
 	// Check user object:
 	if ((user.hasOwnProperty('name') && user.name.length > 0) &&
-		(user.hasOwnProperty('score') && typeof user.score === 'Number') &&
+		(user.hasOwnProperty('score') && typeof user.score === 'number') &&
 		(user.hasOwnProperty('ip') && user.ip.length > 0)) {
 
-		new Request.JSON({
-			url: '',
+		console.log(user);
+
+		new Request({
+			method: "POST",
+			url: 'http://localhost:3000/api/scores',
 			data: user,
-			onComplete: function() {
-				console.log("Thanks for your score.");
+			onComplete: function(resp) {
+				console.log(resp);
 			}
 		}).send();
 	}

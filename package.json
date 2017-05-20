@@ -10,8 +10,10 @@
   "author": "Martin Nicholson",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "cors": "^2.8.3",
     "express": "^4.15.3",
+    "geoip-lite": "^1.2.1",
     "lodash": "^4.17.4",
     "node-persist": "^2.0.11"
   }
