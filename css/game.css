@@ -308,28 +308,39 @@ dd {
  * HIGHSCORES
  */
 #highscores {
-	display: none;
-	width: 50%;
-	height: 50%;
-	position: absolute;
-	top: calc(25% - 1em);
-	left: calc(25% - 1em);
-	background: rgba(255,255,255,0.5);
+	width: 60%;
+	height: 60%;
 	padding: 1em;
+	position: absolute;
+	top: calc(20% - 1em);
+	left: calc(20% - 1em);
+	background: rgba(255,255,255,0.7);
+	color: #666;
 	z-index: 30;
-}
-table {
-	border-collapse: collapse;
+	border-radius: 4px;
+	box-shadow: rgba(0,0,0,0.2) 0 0 12px 6px;
+	display: none;
 }
 .open {
 	display: block !important;
 }
-.closer {
-	position: absolute;
-	top: 5px;
-	right: 5px;
-	padding: 0.2em 0.5em;
-	cursor: pointer;
+#highscores form {
+	xdisplay: none;
+}
+.finished #highscores form {
+	display: block;
+}
+#highscores label {
+	display: block;
+	margin-bottom: 0.5em;
+}
+#highscores table {
+	border-collapse: collapse;
+	width: 80%;
+	margin: 0 auto;
+}
+#highscores th, td {
+	text-align: left;
 }
 input#myname {
 	width: 8em;
@@ -337,4 +348,11 @@ input#myname {
 input#website {
 	position: absolute;
 	left: -10000px;
+}
+.closer {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	padding: 0.2em 0.5em;
+	cursor: pointer;
 }

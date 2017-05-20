@@ -634,7 +634,7 @@ function showHighscores() {
 	new Request.JSON({
 		log: true,
 		method: 'get',
-		url: 'js/scores.json',
+		url: 'http://localhost:3000/api/scores/10',	//data/scores.json',
 		onRequest: function() {
 			console.log(this);
 		},
