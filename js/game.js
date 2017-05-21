@@ -62,10 +62,13 @@ var costs = {
 
 var user = {
 	ip: myip,	// should be ready from previous script... maybe
-	country: ''
+	gameID: new Date().valueOf(),	// unique enough for our purposes
+	name: 'Anonymous'
 };
 
 var timeagoInstance = timeago();
+
+var recordCreated = false;
 
 
 /******************/
@@ -302,7 +305,10 @@ function updateState() {
 		showHighscores();
 		return;
     }
-	else if (bay.length === 0) {
+	if (tileCount === 1 && recordCreated === false) {
+		createRecord();
+	}
+	if (bay.length === 0) {
 		chooseTile();
 	}
 	// Scoring:
@@ -457,16 +463,17 @@ function setMode(mode) {
 			}
 			break;
 
-		case '':
-			gameMode = '';
-			showMessage("mode disabled");
-			break;
-
 		case 'finished':
 			$('gamearea').addClass(mode);
 			gameMode = mode;
 			// Disable game menu:
 			$('menu').destroy();
+			break;
+
+		case '':
+			gameMode = '';
+			showMessage("mode disabled");
+			break;
 
 		default:
 			break;
@@ -652,49 +659,52 @@ function showHighscores() {
 			timeagoInstance.render($$('.time'));
 			$('highscores').addClass('open');
 		}
-	}).send();
+	}).get();
 }
 
 // Post to API when a game is started (record IP, date, gameID)
 function createRecord() {
-	user.session = '';
+	// Create a unique gameID to serve as the sessionID / db primary key:
 	user.timestamp = new Date();
+	user.tiles = tileCount;
+	user.score = totalScore;
 
 	new Request.JSON({
-		url: '',
+		method: 'PUT',
+		emulation: false,	// send a true PUT request, not a POST + meta-crap
+		url: 'http://localhost:3000/api/scores',
 		data: user,
-		onComplete: function() {
-			console.log("Record initialised.");
+		onComplete: function(resp) {
+			if (resp == 200) {
+				recordCreated = true;
+				console.log("Record initialised.");
+			}
 		}
-	}).send();
+	}).put();
 }
 
 // Post a new score record or update existing gameID?
 function submitScore() {
-	// User object gains name from form & score from game:
-	user.name = 'Billy';
-	user.score = totalScore;
-	//
+	// Fill out user object with game data:
 	user.timestamp = new Date();
+	user.tiles = tileCount;
+	user.score = totalScore;
 
 	// Check user object:
 	if ((user.hasOwnProperty('name') && user.name.length > 0) &&
 		(user.hasOwnProperty('score') && typeof user.score === 'number') &&
 		(user.hasOwnProperty('ip') && user.ip.length > 0)) {
 
-		console.log(user);
-
 		new Request({
 			method: "POST",
 			url: 'http://localhost:3000/api/scores',
 			data: user,
 			onComplete: function(resp) {
-				console.log(resp);
+				if (resp == 200) console.log("Record updated.");
 			}
-		}).send();
+		}).post();
 	}
 }
-
 
 
 /*************/
@@ -713,8 +723,8 @@ window.addEvent('domready', function() {
 	/**************/
 	$('gamearea').addEvent('click', function(event) {
 		// Close menus:
-		if (event.target.id !== 'menu') { $('menu').removeClass('open'); }
-		if (event.target.id !== 'prices') { $('prices').removeClass('open'); }
+		if (event.target.id !== 'menu' && gameMode !== 'finished') $('menu').removeClass('open');
+		if (event.target.id !== 'prices') $('prices').removeClass('open');
 	});
 
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
@@ -745,19 +755,19 @@ window.addEvent('domready', function() {
 	$('submitscore').addEvent('submit', function(e) {
 		e.preventDefault();
 		//new Event(e).stop();
-		console.log(this);
-		// User object gains name from form & score from game:
-		user.name = this.name;
-		user.score = totalScore;
+		// User object gains name from form:
+		user.name = $('myname').value;
 		submitScore();
 	});
 
 	// Key listeners:
 	document.addEvent('keydown', function(e) {
-		if (e.code == 77) setMode('move');						// 'm'
-		if (e.code == 82) setMode('recycle');					// 'r'
-		if (e.code == 85) undo();								// 'u'
-		if (e.code == 81) hiddenScore += 100; displayNonZeroScores();		// 'q'
+		if (gameMode == '') {
+			if (e.code == 77) setMode('move');						// 'm'
+			if (e.code == 82) setMode('recycle');					// 'r'
+			if (e.code == 85) undo();								// 'u'
+			if (e.code == 81) hiddenScore += 200; displayNonZeroScores();		// 'q'
+		}
 	});
 
 });

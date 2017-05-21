@@ -38,6 +38,25 @@ function getCountry(ip) {
 	return geo.country;			// async?
 }
 
+// Parse the incoming data object and prepare fields for database:
+function prepRequestObject(req) {
+	// Validate fields?
+	return {
+		gameid: req.body.gameID,
+		timestamp: req.body.timestamp,
+		ip: req.body.ip,
+		country: getCountry(req.body.ip),
+		name: req.body.name,
+		tiles: parseInt(req.body.tiles),	// should be 1 or 19
+		score: parseInt(req.body.score)
+	};
+}
+
+// Overwrite scores object both in-memory and to file on disk:
+function writeScores() {
+
+}
+
 // Client GETs all scores:
 app.get('/api/scores/:num', function(req, res) {
 	let highscores = getHighscores(req.params.num);
@@ -46,32 +65,52 @@ app.get('/api/scores/:num', function(req, res) {
 	}
 });
 
-// Client POSTs a new score:
-app.post('/api/scores', function(req, res) {
+// Client PUTs a new record:
+app.put('/api/scores', function(req, res) {
+	console.log("PUTting");
 	console.log(req.ip);	// ::1
-	console.log(req.body);
+	//console.log(req.body);
 
-	// Validate fields?
-	let newscore = {
-		timestamp: req.body.timestamp,
-		ip: req.body.ip,
-		country: getCountry(req.body.ip),
-		name: req.body.name,
-		score: parseInt(req.body.score)
-	};
+	let newscore = prepRequestObject(req);
 	console.log(newscore);
 
 	// Fetch db scores:
 	let scores = JSON.parse(storage.getItemSync('scores'));
-	console.log(scores.length + "scores retrieved.");
+	console.log(scores.length + " scores retrieved.");
 	// Append new record:
 	scores.push(newscore);
-	console.log(scores.length + "scores being saved.");
 	// Save into db:
+	console.log(scores.length + " scores being saved.");	// should be 1 more
 	storage.setItemSync('scores', JSON.stringify(scores));	// SHOULD ALSO WRITE TO FILE HERE?
 	console.log(scores);
 	// Return status code / message:
 	res.status(200).send('Thanks');
+});
+
+// Client POSTs update to a score:
+app.post('/api/scores', function(req, res) {
+	console.log("POSTing");
+	//console.log(req.body);
+
+	let updatedscore = prepRequestObject(req);
+	console.log(updatedscore);
+
+	// Check game was finished:
+	if (updatedscore.tiles >= 3) {	// === 19
+		// Fetch all db scores:
+		let scores = JSON.parse(storage.getItemSync('scores'));
+		console.log(scores.length + " scores retrieved.");
+		// Find record by gameid and update it:
+		scores = scores.map(function(entry) {
+			return (entry.gameid == updatedscore.gameid) ? updatedscore : entry;
+		});	// Done!
+		// Save into db:
+		console.log(scores.length + " scores being saved.");	// should be equal
+		storage.setItemSync('scores', JSON.stringify(scores));	// SHOULD ALSO WRITE TO FILE HERE?
+		console.log(scores);
+		// Return status code / message:
+		res.status(200).send('Thanks');
+	}
 });
 
 // Serve:
