@@ -16,16 +16,18 @@ var storage = require('node-persist');
 storage.initSync();
 
 // Load scores data from disk:
-fs = require('fs');
-fs.readFile('data/scores.json', 'utf-8', function(err,data) {
-	storage.setItemSync('scores', data);
-	//console.log(storage.getItemSync('scores'));
-});
+if (typeof storage.getItemSync('scores') !== 'array') {
+	fs = require('fs');
+	fs.readFile('data/scores.json', 'utf-8', function(err,data) {
+		storage.setItemSync('scores', data);
+	});
+}
 
 // Retrieve array of x highest scoring game objects:
 function getHighscores(number = 3) {
 	let scores = JSON.parse(storage.getItemSync('scores'));
 	return _.chain(scores)
+			.filter(score => score.tiles === 19)
 			.sortBy('score')
 			.reverse()
 			.take(number)
@@ -56,7 +58,8 @@ function prepRequestObject(req) {
 function writeScores() {
 
 }
-
+/* ROUTES
+ *============================================================================*/
 // Client GETs all scores:
 app.get('/api/scores/:num', function(req, res) {
 	let highscores = getHighscores(req.params.num);
@@ -65,11 +68,11 @@ app.get('/api/scores/:num', function(req, res) {
 	}
 });
 
+
 // Client PUTs a new record:
 app.put('/api/scores', function(req, res) {
 	console.log("PUTting");
 	console.log(req.ip);	// ::1
-	//console.log(req.body);
 
 	let newscore = prepRequestObject(req);
 	console.log(newscore);
@@ -87,10 +90,10 @@ app.put('/api/scores', function(req, res) {
 	res.status(200).send('Thanks');
 });
 
+
 // Client POSTs update to a score:
 app.post('/api/scores', function(req, res) {
 	console.log("POSTing");
-	//console.log(req.body);
 
 	let updatedscore = prepRequestObject(req);
 	console.log(updatedscore);
@@ -111,6 +114,11 @@ app.post('/api/scores', function(req, res) {
 		// Return status code / message:
 		res.status(200).send('Thanks');
 	}
+});
+
+app.get('/api/reset', function(req, res) {
+	storage.setItemSync('scores', null);
+	console.log("Reset db");
 });
 
 // Serve:

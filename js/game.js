@@ -648,7 +648,12 @@ function showHighscores() {
 			entries.forEach(function(entry) {
 				// Build up a table row:
 				var tr = new Element('tr');
-				new Element('td', { html: entry.country }).inject(tr);
+				var flag = new Element('img', {
+					class: 'flag flag_'+entry.country.toLowerCase(),
+					src: 'img/blank.gif',
+					alt: entry.country
+				});
+				new Element('td', { html: entry.country }).grab(flag).inject(tr);
 				new Element('td', { html: entry.name }).inject(tr);
 				new Element('td', { html: entry.score }).inject(tr);
 				new Element('td', { datetime: entry.timestamp, class: 'time' }).inject(tr);
