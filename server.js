@@ -1,10 +1,14 @@
 // Express app
 var _ = require('lodash');
+var path = require('path');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var geoip = require('geoip-lite');
+
+// Static assets to be served:
+app.use(express.static('static'));
 
 // Set up middleware:
 app.use(bodyParser.urlencoded({ extended: false }));	// parse application/x-www-form-urlencoded
@@ -28,11 +32,14 @@ function getHighscores(number = 3) {
 	let scores = JSON.parse(storage.getItemSync('scores'));
 	return _.chain(scores)
 			.filter(score => score.tiles === 19)
+			.map(score => _.pick(score, ['timestamp', 'country', 'name', 'score']))
 			.sortBy('score')
 			.reverse()
 			.take(number)
 			.value();
 }
+
+;
 
 // Convert ip to country code:
 function getCountry(ip) {
@@ -116,10 +123,21 @@ app.post('/api/scores', function(req, res) {
 	}
 });
 
+
+// Reset API data store:
 app.get('/api/reset', function(req, res) {
 	storage.setItemSync('scores', null);
 	console.log("Reset db");
 });
+
+
+// Serve static game page:
+app.get('/', function(req, res) {
+	console.log("Express serving index.html");
+	//res.render('/index.html');
+	res.sendFile(path.join(__dirname + '/static/index.html'));
+});
+
 
 // Serve:
 const port = 3000;

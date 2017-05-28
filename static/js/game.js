@@ -642,7 +642,7 @@ function showHighscores() {
 
 	new Request.JSON({
 		method: 'GET',
-		url: 'http://localhost:3000/api/scores/10',
+		url: '/api/scores/10',
 		onComplete: function(entries) {
 			console.log(entries);
 			entries.forEach(function(entry) {
@@ -677,7 +677,7 @@ function createRecord() {
 	new Request.JSON({
 		method: 'PUT',
 		emulation: false,	// send a true PUT request, not a POST + meta-crap
-		url: 'http://localhost:3000/api/scores',
+		url: '/api/scores',
 		data: user,
 		onComplete: function(resp) {
 			if (resp == 200) {
@@ -702,7 +702,7 @@ function submitScore() {
 
 		new Request({
 			method: "POST",
-			url: 'http://localhost:3000/api/scores',
+			url: '/api/scores',
 			data: user,
 			onComplete: function(resp) {
 				if (resp == 200) console.log("Record updated.");
