@@ -726,6 +726,10 @@ window.addEvent('domready', function() {
 	/**************/
 	/*! LISTENERS */
 	/**************/
+	window.panelFx = new Fx.Slide('spanel', {
+    	mode: 'horizontal'
+	});
+
 	$('gamearea').addEvent('click', function(event) {
 		// Close menus:
 		if (event.target.id !== 'menu' && gameMode !== 'finished') $('menu').removeClass('open');

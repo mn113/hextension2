@@ -8,6 +8,22 @@ body {
 /*
  * LAYOUT
  */
+#panel {
+	background: rgba(255,255,255,0.9);
+    position: absolute;
+	top: 0;
+	left: 0;
+    width: 20em;
+    padding-left: 1em;
+	padding-bottom: 1em;
+    z-index: 100;
+}
+#panel ol {
+
+}
+#panel li {
+	margin-bottom: 0.4em;
+}
 #gamearea {
     position: relative;
     width: 594px;
