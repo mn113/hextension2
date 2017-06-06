@@ -249,6 +249,8 @@ function Tile(id) {
 			'top': '-36px',	// WORKS FOR BOARD, NOT BAY
 			'left': 0
 		});
+		// Play sound:
+		playSound('drill');
 		updateState();
 	};
 
@@ -259,6 +261,8 @@ function Tile(id) {
 		// Take tile off the board:
 		t.toBank();
 		t.location = null;
+		// Play sound:
+		playSound('recycle');
 		// Admin:
 		hiddenScore -= costs.recycle;
 		updateState();
@@ -267,6 +271,7 @@ function Tile(id) {
 	};
 
 	t.move = function() {
+		playSound('pop');
 		showMessage("Drag the tile to an empty space.");
 		t.el.setStyles({top: '-54px'});
 		t.makeDraggable(false);	// pass in old parent
@@ -307,6 +312,7 @@ function updateState() {
         // Finishing bonus:
         setStatus("Game Complete!");
 		setMode('finished');
+		playSound('victory');
         hiddenScore += 500;
 		calcScore();
 		displayNonZeroScores();
@@ -406,6 +412,23 @@ function clearMessages() {
 
 
 /********************/
+/*! AUDIO FUNCTIONS */
+/********************/
+var sounds = {		// Empty container for all the sounds to be used
+	chaching:{url: 'sfx/chaching.mp3', volume: 60},
+	drill:	 {url: 'sfx/drill.mp3', volume: 40},
+	pop:	 {url: 'sfx/pop.mp3', volume: 50},
+	recycle: {url: 'sfx/recycle.mp3', volume: 50},
+	victory: {url: 'sfx/victory.mp3', volume: 50}
+};
+function playSound(key) {
+	var snd = new Audio(sounds[key].url); 	// Audio buffers automatically when created
+	snd.volume = sounds[key].volume / 100;
+	snd.play();
+}
+
+
+/********************/
 /*! BOARD FUNCTIONS */
 /********************/
 function findValidPlaces() {
@@ -451,7 +474,7 @@ function setMode(mode) {
 	switch(mode) {
 		case 'move':
 			if (totalScore < costs.move) {
-				showMessage("You don't have $costs.move.");
+				showMessage("You don't have $"+costs.move);
 			}
 			else if(tileCount > 0 && tileCount < 19) {
 				gameMode = mode;
@@ -500,6 +523,8 @@ function undo() {			// FIXME using game state history, not second-guessing last 
 		var lastPlaceId = filledPlaces.pop();
 		$('p'+lastPlaceId).removeClass("filled");
 		p[lastPlaceId].val = [0,0,0];
+		// Play sound:
+		playSound('recycle');
 		// Tile back to bay:
 		chooseTile(lastTile.id);
 		hiddenScore -= costs.undo;
@@ -607,7 +632,10 @@ function displayNonZeroScores() {
     });
 
     // Display main score:
-    totalScore = linesScore + hiddenScore;
+    newScore = linesScore + hiddenScore;
+	if (newScore > totalScore) playSound('chaching');
+	totalScore = newScore;
+
 	$('score').set('text', '$' + totalScore);
 }
 
