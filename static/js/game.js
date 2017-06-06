@@ -185,6 +185,14 @@ function Tile(id) {
 					parent.addClass('floaty'); 	// raises z-index to 15
 				}
 			},
+			onEnter: function(element, droppable){
+		        console.log(element, 'entered', droppable);
+				droppable.addClass('over');
+		    },
+		    onLeave: function(element, droppable){
+		        console.log(element, 'left', droppable);
+				droppable.removeClass('over');
+		    },
 			onDrop: function(element, droppable) {
 				// Can we really drop here?
 				if (!droppable || !droppable.hasClass('valid')) {

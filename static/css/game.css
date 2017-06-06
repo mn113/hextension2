@@ -179,6 +179,13 @@ dd {
 .place.valid {
     background: url(../img/tiles/place-hover.png) no-repeat;
 }
+.place.valid.over {
+	-webkit-filter: brightness(150%);
+    -moz-filter:    brightness(150%);
+    -ms-filter:     brightness(150%);
+    -o-filter:      brightness(150%);
+	filter: 		brightness(150%);
+}
 .place > .tile {
     top: -36px;
     left: 0;
