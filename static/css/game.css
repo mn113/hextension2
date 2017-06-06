@@ -17,12 +17,8 @@ body {
     padding-left: 1em;
 	padding-bottom: 1em;
     z-index: 100;
-}
-#panel ol {
-
-}
-#panel li {
-	margin-bottom: 0.4em;
+	transform-origin: 98px 67px;
+    transform: rotateZ(0deg);
 }
 #gamearea {
     position: relative;
@@ -76,6 +72,22 @@ body {
 
 
 /*
+ * PANEL STUFF
+ */
+#panel a {
+	color: dodgerblue;
+	text-decoration: underline;
+	cursor: pointer;
+}
+#panel ol {
+
+}
+#panel li {
+	margin-bottom: 0.4em;
+}
+
+
+/*
  * MENU STUFF
  */
 #menu {
@@ -84,8 +96,8 @@ body {
     right: 5px;
     z-index: 20;
     text-align: right;
-    background: url(../img/menu48.png) top right no-repeat;
-    min-width: 48px;
+    background: url(../img/menu-mnu.png) top right no-repeat;
+    min-width: 42px;
     min-height: 48px;
 }
 #menu.open {
@@ -122,8 +134,8 @@ ul#menu_contents a:hover {
     bottom: 5px;
     right: 5px;
     z-index: 20;
-    background: url(../img/menu48.png) top right no-repeat;
-    min-width: 48px;
+    background: url(../img/menu-val.png) top right no-repeat;
+    min-width: 42px;
     min-height: 48px;
 }
 #prices > * { display: none; }

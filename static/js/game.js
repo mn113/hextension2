@@ -726,9 +726,16 @@ window.addEvent('domready', function() {
 	/**************/
 	/*! LISTENERS */
 	/**************/
-	window.panelFx = new Fx.Slide('spanel', {
-    	mode: 'horizontal'
+	window.panelFx = new Fx.Tween('panel', {
+		duration: 1000,
+		property: 'transform'
 	});
+	window.panelFx.set = function(values, value) {
+		var targetRotation = 180;
+		var rotatedStyle = "rotateZ(" + (targetRotation * values[0].value) + "deg)";
+		console.log(values, values[0].value, rotatedStyle);
+		$('panel').setStyles({transform: rotatedStyle});
+	};
 
 	$('gamearea').addEvent('click', function(event) {
 		// Close menus:
