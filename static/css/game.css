@@ -296,6 +296,20 @@ dd {
 
 
 /*
+ * SCENERY
+ */
+.tree {
+	position: absolute;
+	width: 30px;
+	height: 48px;
+	background: url(../img/pine48.png);
+}
+.snowy {
+	background: url(../img/pinesnow48.png);
+}
+
+
+/*
  * SPECIAL MOVES
  */
 .recycle #bay .tile,

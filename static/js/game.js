@@ -119,6 +119,32 @@ function generateBoard() {
 	}
 }
 
+function generateTrees() {
+	var treeTiles = {'f03':0.2,'f02':0.3,'f01':0.4,'f00':0.5,'f10':0.6,'f20':0.7,'f30':0.8,'f40':0.7,'f50':0.6,'f60':0.5,'f61':0.4,'f62':0.3,'f63':0.2};
+
+	for (key of Object.keys(treeTiles)) {
+		// How many trees on this tile?
+		var rNum = Math.ceil(12 * treeTiles[key] * Math.random());
+		while (rNum > 0) {
+			var rTop = -20 + Math.floor(40 * Math.random()),
+				rLeft = 20 + Math.floor(40 * Math.random());
+			var tree = new Element('div')
+				.addClass('tree')
+				// Randomly position:
+			 	.setStyles({
+					top: rTop,
+					left: rLeft,
+					zIndex: rTop
+		    	});
+			// Set snowiness based on hash values:
+			if (Math.random() < treeTiles[key]) tree.addClass('snowy');
+			// Add to edge tile:
+			tree.inject($(key));
+			rNum--;
+		}
+	}
+}
+
 
 /*******************/
 /*! TILE FUNCTIONS */
@@ -421,6 +447,7 @@ var sounds = {		// Empty container for all the sounds to be used
 	recycle: {url: 'sfx/recycle.mp3', volume: 50},
 	victory: {url: 'sfx/victory.mp3', volume: 50}
 };
+
 function playSound(key) {
 	var snd = new Audio(sounds[key].url); 	// Audio buffers automatically when created
 	snd.volume = sounds[key].volume / 100;
@@ -603,23 +630,23 @@ function calcScore() {
 
 function displayNonZeroScores() {
     // Display line scores on edge tiles:
-    $('f14').set('text', tileScores.x1 > 0 ? '$' + tileScores.x1 : '');
-    $('f25').set('text', tileScores.x2 > 0 ? '$' + tileScores.x2 : '');
-    $('f36').set('text', tileScores.x3 > 0 ? '$' + tileScores.x3 : '');
-    $('f45').set('text', tileScores.x4 > 0 ? '$' + tileScores.x4 : '');
-    $('f54').set('text', tileScores.x5 > 0 ? '$' + tileScores.x5 : '');
+    if (tileScores.x1 > 0) $('f14').set('text', '$' + tileScores.x1);
+	if (tileScores.x2 > 0) $('f25').set('text', '$' + tileScores.x2);
+	if (tileScores.x3 > 0) $('f36').set('text', '$' + tileScores.x3);
+	if (tileScores.x4 > 0) $('f45').set('text', '$' + tileScores.x4);
+	if (tileScores.x5 > 0) $('f54').set('text', '$' + tileScores.x5);
 
-    $('f20').set('text', tileScores.y1 > 0 ? '$' + tileScores.y1 : '');
-    $('f10').set('text', tileScores.y2 > 0 ? '$' + tileScores.y2 : '');
-    $('f00').set('text', tileScores.y3 > 0 ? '$' + tileScores.y3 : '');
-    $('f01').set('text', tileScores.y4 > 0 ? '$' + tileScores.y4 : '');
-    $('f02').set('text', tileScores.y5 > 0 ? '$' + tileScores.y5 : '');
+	if (tileScores.y1 > 0) $('f20').set('text', '$' + tileScores.y1);
+	if (tileScores.y2 > 0) $('f10').set('text', '$' + tileScores.y2);
+	if (tileScores.y3 > 0) $('f00').set('text', '$' + tileScores.y3);
+	if (tileScores.y4 > 0) $('f01').set('text', '$' + tileScores.y4);
+	if (tileScores.y5 > 0) $('f02').set('text', '$' + tileScores.y5);
 
-    $('f40').set('text', tileScores.z1 > 0 ? '$' + tileScores.z1 : '');
-    $('f50').set('text', tileScores.z2 > 0 ? '$' + tileScores.z2 : '');
-    $('f60').set('text', tileScores.z3 > 0 ? '$' + tileScores.z3 : '');
-    $('f61').set('text', tileScores.z4 > 0 ? '$' + tileScores.z4 : '');
-    $('f62').set('text', tileScores.z5 > 0 ? '$' + tileScores.z5 : '');
+	if (tileScores.z1 > 0) $('f40').set('text', '$' + tileScores.z1);
+	if (tileScores.z2 > 0) $('f50').set('text', '$' + tileScores.z2);
+	if (tileScores.z3 > 0) $('f60').set('text', '$' + tileScores.z3);
+	if (tileScores.z4 > 0) $('f61').set('text', '$' + tileScores.z4);
+	if (tileScores.z5 > 0) $('f62').set('text', '$' + tileScores.z5);
 
     // Style edge tiles:
     $$('.edge').each(function(el) {
@@ -757,6 +784,7 @@ window.addEvent('domready', function() {
 
 	generateBoard();
 	generateTiles();
+	generateTrees();
 	//console.log(allTiles);	// ok
 	chooseTile();
 
