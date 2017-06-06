@@ -641,19 +641,20 @@ function displayNonZeroScores() {
 
 function calcBoni() {
 	// Count scoring lines:
-	var scoring = Object.values(tileScores).filter(val => val > 0).length;
-	if (scoring === 9) awardBonus(3);
-	else if (scoring === 6) awardBonus(2);
-	else if (scoring === 3) awardBonus(1);
+	var scoringLineCount = Object.values(tileScores).filter(val => val > 0).length;
+	if (scoringLineCount === 9) awardBonus(3);
+	else if (scoringLineCount === 6) awardBonus(2);
+	else if (scoringLineCount === 3) awardBonus(1);
 }
+
+var boni = {
+	1: {bonus: 100, msg: "Greenfields: $10 bonus awarded!"},
+	2: {bonus: 200, msg: "Expander: $20 bonus awarded!"},
+	3: {bonus: 300, msg: "Super Developer: $30 bonus awarded!"}
+};
 
 function awardBonus(key) {
 	console.log("Awarding bonus", key);
-	var boni = {
-		1: {bonus: 100, msg: "Greenfields: $10 bonus awarded!"},
-		2: {bonus: 200, msg: "Expander: $20 bonus awarded!"},
-		3: {bonus: 300, msg: "Super Developer: $30 bonus awarded!"}
-	};
 	if (boni[key]) {
 		hiddenScore += boni[key].bonus;
 		showMessage(boni[key].msg);
