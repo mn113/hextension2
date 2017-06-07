@@ -19,12 +19,16 @@ app.use(cors())					// might need configuring, specific domains etc.
 var storage = require('node-persist');
 storage.initSync();
 
-// Load scores data from disk:
-if (typeof storage.getItemSync('scores') !== 'array') {
+// Load scores data from disk if nothing persisted:
+if (typeof storage.getItemSync('scores') === 'undefined') {
 	fs = require('fs');
 	fs.readFile('data/scores.json', 'utf-8', function(err,data) {
 		storage.setItemSync('scores', data);
 	});
+	console.log("Loaded JSON scores.");
+}
+else {
+	console.log("Persisted:", storage.getItemSync('scores'));
 }
 
 // Retrieve array of x highest scoring game objects:
@@ -38,8 +42,6 @@ function getHighscores(number = 3) {
 			.take(number)
 			.value();
 }
-
-;
 
 // Convert ip to country code:
 function getCountry(ip) {
@@ -79,7 +81,8 @@ app.get('/api/scores/:num', function(req, res) {
 // Client PUTs a new record:
 app.put('/api/scores', function(req, res) {
 	console.log("PUTting");
-	console.log(req.ip);	// ::1
+	var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+	console.log(ip, req.ip);	// ::1, ::1
 
 	let newscore = prepRequestObject(req);
 	console.log(newscore);
@@ -92,6 +95,7 @@ app.put('/api/scores', function(req, res) {
 	// Save into db:
 	console.log(scores.length + " scores being saved.");	// should be 1 more
 	storage.setItemSync('scores', JSON.stringify(scores));	// SHOULD ALSO WRITE TO FILE HERE?
+
 	console.log(scores);
 	// Return status code / message:
 	res.status(200).send('Thanks');

@@ -762,7 +762,7 @@ var myHexGame = (function() {
 			// Fill out user object with game data:
 			user.timestamp = new Date();
 			user.tiles = tileCount;
-			user.score = totalScore;
+			user.score = scoring.totalScore;
 
 			// Check user object:
 			if ((user.hasOwnProperty('name') && user.name.length > 0) &&
@@ -827,15 +827,17 @@ window.addEvent('domready', function() {
 	};
 
 	// Close menus:
-	$('gamearea').addEvent('click', function(event) {
-		if (event.target.id !== 'menu' && myHexGame.gameMode !== 'finished') {
-			$('menu').removeClass('open');
-		}
-		if (event.target.id !== 'prices') {
-			$('prices').removeClass('open');
+/*	$('gamearea').addEvent('click', function(event) {
+		if (myHexGame.gameMode !== 'finished') {
+			if (event.target.id !== 'menu') {
+				$('menu').removeClass('open');
+			}
+			if (event.target.id !== 'prices') {
+				$('prices').removeClass('open');
+			}
 		}
 	});
-
+*/
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
 		var placeId = parseInt(target.getParent().id.slice(1));
 		var thisTile;
@@ -868,6 +870,9 @@ window.addEvent('domready', function() {
 		// User object gains name from form:
 		myHexGame.user.name = $('myname').value;
 		myHexGame.io.submitScore();
+		// Remove input:
+		$(this).remove();
+		myHexGame.io.showHighscores();
 	});
 
 	// Key listeners:
