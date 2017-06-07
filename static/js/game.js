@@ -17,10 +17,6 @@
 
 var myHexGame = (function() {
 
-	var filledPlaces = [];	// add to it each turn
-
-	var bay = [];		// must only contain 1 tile
-
 	var p = {			// main board state store
 		11: {val: [0,0,0], nb: [21,22,12]},
 		12: {val: [0,0,0], nb: [11,22,23,13]},
@@ -43,11 +39,9 @@ var myHexGame = (function() {
 		53: {val: [0,0,0], nb: [44,43,52]}
 	};
 
-	var tileSetup = {	// tile internals
-		x: [1,5,9],		// water, sewage, oil
-		y: [3,4,8],		// canal, pylons, cable
-		z: [2,6,7]		// path, road, rail
-	};
+	var bay = [];		// must only contain 1 tile
+
+	var filledPlaces = [];	// add to it each turn
 
 	var allTiles = {};	// necessary?
 
@@ -66,12 +60,9 @@ var myHexGame = (function() {
 	var user = {
 		ip: myip,	// should be ready from previous script... maybe
 		gameID: new Date().valueOf(),	// unique enough for our purposes
-		name: 'Anonymous'
+		name: 'Anonymous',
+		recordCreated: false			// for analytics/io
 	};	// user object (for highscores)
-
-	var timeagoInstance = timeago();	// for highscores
-
-	var recordCreated = false;		// for analytics/io
 
 
 	/*********************/
@@ -239,6 +230,12 @@ var myHexGame = (function() {
 	/******************/
 	var generators = {
 		generateTiles: function() {
+			var tileSetup = {	// tile internals
+				x: [1,5,9],		// water, sewage, oil
+				y: [3,4,8],		// canal, pylons, cable
+				z: [2,6,7]		// path, road, rail
+			};
+
 			// Generate the 27 possible tiles:
 			for (var a=0, xl=tileSetup.x.length; a < xl; a++) {
 				for (var b=0, yl=tileSetup.y.length; b < yl; b++) {
@@ -546,7 +543,7 @@ var myHexGame = (function() {
 				io.showHighscores();
 				return;
 		    }
-			if (tileCount === 1 && recordCreated === false) {
+			if (tileCount === 1 && user.recordCreated === false) {
 				io.createRecord();
 			}
 			if (bay.length === 0) {
@@ -732,6 +729,7 @@ var myHexGame = (function() {
 						tr.inject($('highscores').getElement('tbody'));
 					});
 					// Fuzzify timestamps:
+					var timeagoInstance = timeago();	// for highscores
 					timeagoInstance.render($$('.time'));
 					$('highscores').addClass('open');
 				}
@@ -752,7 +750,7 @@ var myHexGame = (function() {
 				data: user,
 				onComplete: function(resp) {
 					if (resp == 200) {
-						recordCreated = true;
+						user.recordCreated = true;
 						console.log("Record initialised.");
 					}
 				}
