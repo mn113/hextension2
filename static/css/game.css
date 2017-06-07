@@ -374,10 +374,13 @@ dd {
 	display: block !important;
 }
 #highscores form {
-	xdisplay: none;
+	display: none;
 }
 .finished #highscores form {
 	display: block;
+}
+.finished #bay {
+	display: none;
 }
 #highscores label {
 	display: block;
