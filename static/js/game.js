@@ -17,6 +17,8 @@
 
 var myHexGame = (function() {
 
+	var standalone = false;	// false allows communication with local backend; true disables it
+
 	var p = {			// main board state store
 		11: {val: [0,0,0], nb: [21,22,12]},
 		12: {val: [0,0,0], nb: [11,22,23,13]},
@@ -53,8 +55,8 @@ var myHexGame = (function() {
 
 	var costs = {
 		undo: 75,
-		recycle: 225,	// TODO: $225
-		move: 375		// TODO: $375
+		recycle: 225,
+		move: 375
 	}	// special move costs
 
 	var user = {
@@ -716,6 +718,8 @@ var myHexGame = (function() {
 	var io = {
 		// Get highscores from API & display them
 		showHighscores: function() {
+			if (standalone) return;
+
 			// Clear out container:
 			$('highscores').getElement('tbody').set('html','');
 
@@ -749,6 +753,8 @@ var myHexGame = (function() {
 
 		// Post to API when a game is started (record IP, date, gameID)
 		createRecord: function() {
+			if (standalone) return;
+
 			// Create a unique gameID to serve as the sessionID / db primary key:
 			user.timestamp = new Date();
 			user.tiles = tileCount;
@@ -770,6 +776,8 @@ var myHexGame = (function() {
 
 		// Post a new score record or update existing gameID?
 		submitScore: function() {
+			if (standalone) return;
+
 			// Fill out user object with game data:
 			user.timestamp = new Date();
 			user.tiles = tileCount;
