@@ -25,7 +25,7 @@
 			<li>Aim: to make the most cash.</li>
 			<!--li>When you have funds, you can buy special moves.</li-->
 		</ol>
-		<a onclick="hidePanel();">Dismiss instructions</a>
+		<a onclick="window.hidePanel();">Dismiss instructions</a>
 	</aside>
 	<div id="gamearea">
         <div id="score"></div>
@@ -36,11 +36,11 @@
         <div id="menu" onclick="$(this).toggleClass('open')">
             <ul id="menu_contents">
                 <li><a onclick="window.location.reload();">Restart game</a></li>
-				<li><a onclick="undo()">Undo (-$75)</a></li>
-                <li><a onclick="setMode('recycle')">Recycle tile (-$225)</a></li>
-				<li><a onclick="setMode('move')">Move tile (-$375)</a></li>
+				<li><a onclick="myHexGame.board.undo()">Undo (-$75)</a></li>
+                <li><a onclick="myHexGame.board.setMode('recycle')">Recycle tile (-$225)</a></li>
+				<li><a onclick="myHexGame.board.setMode('move')">Move tile (-$375)</a></li>
                 <li><a onclick="$('edges').toggle()">Toggle edges</a></li>
-				<li><a onclick="showHighscores();">Highscores</a></li>
+				<li><a onclick="myHexGame.io.showHighscores();">Highscores</a></li>
             </ul>
         </div>
         <div id="prices" onclick="$(this).toggleClass('open')">
@@ -62,7 +62,7 @@
 		</div>
 		<div id="highscores">
 			<a class="closer" onclick="$('highscores').toggleClass('open')">&times;</a>
-			<form id="submitscore" action="backend.php" method="POST">
+			<form id="submitscore" action="/" method="POST">
 				<label for="myname">Enter your name to submit score</label>
 				<input id="myname" type="text" placeholder="name" />
 				<input id="website" type="text" />
