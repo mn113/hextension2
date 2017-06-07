@@ -6,8 +6,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var geoip = require('geoip-lite');
+var favicon = require('serve-favicon');
 
 // Static assets to be served:
+app.use(favicon(path.join(__dirname,'static','favicon.ico')));
 app.use(express.static('static'));
 
 // Set up middleware:
