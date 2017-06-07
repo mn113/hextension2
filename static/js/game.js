@@ -53,8 +53,8 @@ var myHexGame = (function() {
 
 	var costs = {
 		undo: 75,
-		recycle: 225,
-		move: 10
+		recycle: 225,	// TODO: $225
+		move: 375		// TODO: $375
 	}	// special move costs
 
 	var user = {
@@ -167,7 +167,7 @@ var myHexGame = (function() {
 						t.addToBoard(parseInt(droppable.get('id').slice(1))); 	// e.g. 53;
 					}
 					// Reset all floatiness:
-					$$('.place').removeClass('floaty');
+					$$('.place').removeClass('floaty over');
 				}
 			});
 		};
@@ -229,6 +229,7 @@ var myHexGame = (function() {
 	/*! GENERATE GAME */
 	/******************/
 	var generators = {
+		// Generate all 27 tile divs and store them off-board:
 		generateTiles: function() {
 			var tileSetup = {	// tile internals
 				x: [1,5,9],		// water, sewage, oil
@@ -254,6 +255,7 @@ var myHexGame = (function() {
 		    }
 		},
 
+		// Inject all 18 places and 18 edge tiles into board:
 		generateBoard: function() {
 		    // Places:
 		    var boardCoords = Object.keys(p);
@@ -275,11 +277,16 @@ var myHexGame = (function() {
 				    'id': 'f'+edgeCoords[b],
 				    'class': 'tile edge',
 				});
+				var score = new Element('span', {
+				    'class': 'score',
+				});
 				//  Insert into document:
+				score.inject(edge);
 				edge.inject($('edges'));
 			}
 		},
 
+		// Randomly create and place some tree divs on the edge tiles:
 		generateTrees: function() {
 			var treeTiles = {'f03':0.2,'f02':0.3,'f01':0.4,'f00':0.5,'f10':0.6,'f20':0.7,'f30':0.8,'f40':0.7,'f50':0.6,'f60':0.5,'f61':0.4,'f62':0.3,'f63':0.2};
 
@@ -312,6 +319,7 @@ var myHexGame = (function() {
 	/*! VISUAL FUNCTIONS */
 	/*********************/
 	var messaging = {
+		// Set text content of score status:
 		setStatus: function(message) {
 			// Message mode:
 			if (message) {
@@ -341,6 +349,7 @@ var myHexGame = (function() {
 		    $('scorestatus').set('text', status);
 		},
 
+		// Add one message to message container:
 		showMessage: function(msg, className, isSticky) {
 			if (typeof className == 'undefined') className = '';
 			if (typeof isSticky == 'undefined') isSticky = false;
@@ -380,6 +389,7 @@ var myHexGame = (function() {
 			}
 		},
 
+		// Clear out message container:
 		clearMessages: function() {
 			$('messages').set('html','');
 		}
@@ -577,9 +587,9 @@ var myHexGame = (function() {
 		hiddenScore: 0,
 		totalScore: 0,
 		boni: {
-			1: {bonus: 100, msg: "Greenfields: $10 bonus awarded!"},
-			2: {bonus: 200, msg: "Expander: $20 bonus awarded!"},
-			3: {bonus: 300, msg: "Super Developer: $30 bonus awarded!"}
+			1: { bonus: 101, msg: "Greenfields: $100 bonus awarded!" },
+			2: { bonus: 202, msg: "Expander: $200 bonus awarded!" },
+			3: { bonus: 303, msg: "Super Developer: $300 bonus awarded!" }
 		},
 
 		// Check whether a line of tiles all match:
@@ -635,28 +645,29 @@ var myHexGame = (function() {
 
 		// Render the scores:
 		displayNonZeroScores: function() {
+			var sts = scoring.tileScores;
 		    // Display line scores on edge tiles:
-		    if (scoring.tileScores.x1 > 0) $('f14').set('text', '$' + scoring.tileScores.x1);
-			if (scoring.tileScores.x2 > 0) $('f25').set('text', '$' + scoring.tileScores.x2);
-			if (scoring.tileScores.x3 > 0) $('f36').set('text', '$' + scoring.tileScores.x3);
-			if (scoring.tileScores.x4 > 0) $('f45').set('text', '$' + scoring.tileScores.x4);
-			if (scoring.tileScores.x5 > 0) $('f54').set('text', '$' + scoring.tileScores.x5);
+			$('f14').getElement('.score').set('text', (sts.x1 > 0) ? '$' + sts.x1 : '');
+			$('f25').getElement('.score').set('text', (sts.x2 > 0) ? '$' + sts.x2 : '');
+			$('f36').getElement('.score').set('text', (sts.x3 > 0) ? '$' + sts.x3 : '');
+			$('f45').getElement('.score').set('text', (sts.x4 > 0) ? '$' + sts.x4 : '');
+			$('f54').getElement('.score').set('text', (sts.x5 > 0) ? '$' + sts.x5 : '');
 
-			if (scoring.tileScores.y1 > 0) $('f20').set('text', '$' + scoring.tileScores.y1);
-			if (scoring.tileScores.y2 > 0) $('f10').set('text', '$' + scoring.tileScores.y2);
-			if (scoring.tileScores.y3 > 0) $('f00').set('text', '$' + scoring.tileScores.y3);
-			if (scoring.tileScores.y4 > 0) $('f01').set('text', '$' + scoring.tileScores.y4);
-			if (scoring.tileScores.y5 > 0) $('f02').set('text', '$' + scoring.tileScores.y5);
+			$('f20').getElement('.score').set('text', (sts.y1 > 0) ? '$' + sts.y1 : '');
+			$('f10').getElement('.score').set('text', (sts.y2 > 0) ? '$' + sts.y2 : '');
+			$('f00').getElement('.score').set('text', (sts.y3 > 0) ? '$' + sts.y3 : '');
+			$('f01').getElement('.score').set('text', (sts.y4 > 0) ? '$' + sts.y4 : '');
+			$('f02').getElement('.score').set('text', (sts.y5 > 0) ? '$' + sts.y5 : '');
 
-			if (scoring.tileScores.z1 > 0) $('f40').set('text', '$' + scoring.tileScores.z1);
-			if (scoring.tileScores.z2 > 0) $('f50').set('text', '$' + scoring.tileScores.z2);
-			if (scoring.tileScores.z3 > 0) $('f60').set('text', '$' + scoring.tileScores.z3);
-			if (scoring.tileScores.z4 > 0) $('f61').set('text', '$' + scoring.tileScores.z4);
-			if (scoring.tileScores.z5 > 0) $('f62').set('text', '$' + scoring.tileScores.z5);
+			$('f40').getElement('.score').set('text', (sts.z1 > 0) ? '$' + sts.z1 : '');
+			$('f50').getElement('.score').set('text', (sts.z2 > 0) ? '$' + sts.z2 : '');
+			$('f60').getElement('.score').set('text', (sts.z3 > 0) ? '$' + sts.z3 : '');
+			$('f61').getElement('.score').set('text', (sts.z4 > 0) ? '$' + sts.z4 : '');
+			$('f62').getElement('.score').set('text', (sts.z5 > 0) ? '$' + sts.z5 : '');
 
 		    // Style edge tiles:
 		    $$('.edge').each(function(el) {
-		        if (el.get('text').length > 0) {
+		        if (el.getElement('.score').get('text').length > 0) {
 		            el.addClass('scoring');
 		        }
 		        else {
@@ -804,7 +815,6 @@ window.addEvent('domready', function() {
 	myHexGame.generators.generateBoard();
 	myHexGame.generators.generateTiles();
 	myHexGame.generators.generateTrees();
-	//console.log(allTiles);	// ok
 	myHexGame.board.chooseTile();
 
 	/**************/
@@ -826,18 +836,6 @@ window.addEvent('domready', function() {
 		});
 	};
 
-	// Close menus:
-/*	$('gamearea').addEvent('click', function(event) {
-		if (myHexGame.gameMode !== 'finished') {
-			if (event.target.id !== 'menu') {
-				$('menu').removeClass('open');
-			}
-			if (event.target.id !== 'prices') {
-				$('prices').removeClass('open');
-			}
-		}
-	});
-*/
 	$$('.place').addEvent('click:relay(.tile)', function(event, target) {	// Delegate from .place, so future children will react
 		var placeId = parseInt(target.getParent().id.slice(1));
 		var thisTile;
@@ -883,5 +881,4 @@ window.addEvent('domready', function() {
 			if (e.code == 85) myHexGame.board.undo();					// 'u'
 		}
 	});
-
 });
