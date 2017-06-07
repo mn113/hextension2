@@ -212,11 +212,9 @@ function Tile(id) {
 				}
 			},
 			onEnter: function(element, droppable){
-		        console.log(element, 'entered', droppable);
 				droppable.addClass('over');
 		    },
 		    onLeave: function(element, droppable){
-		        console.log(element, 'left', droppable);
 				droppable.removeClass('over');
 		    },
 			onDrop: function(element, droppable) {
@@ -795,12 +793,19 @@ window.addEvent('domready', function() {
 		duration: 1000,
 		property: 'transform'
 	});
-	window.panelFx.set = function(values, value) {
+	window.panelFx.set = function(values) {
 		var targetRotation = 180;
 		var rotatedStyle = "rotateZ(" + (targetRotation * values[0].value) + "deg)";
-		console.log(values, values[0].value, rotatedStyle);
+		//console.log(values[0].value, rotatedStyle);
 		$('panel').setStyles({transform: rotatedStyle});
 	};
+	window.hidePanel = function() {
+		panelFx.start(0,1).chain(function() {
+			$('panel').fade('out');
+		});
+	};
+
+
 
 	$('gamearea').addEvent('click', function(event) {
 		// Close menus:
