@@ -2,7 +2,7 @@
 
 An HTML and JavaScript-based single-player puzzle/strategy game to play in the browser.
 
-Play it [here](https://hexconnex.marthost.uk/), leave feedback on [Itch.io](https://mn3monic.itch.io/hexconnex) or [raise an issue](/issues/).
+Play it [here](http://hexconnex.marthost.uk/), leave feedback on [Itch.io](https://mn3monic.itch.io/hexconnex) or [raise an issue](https://github.com/mn113/hextension2/issues/).
 
 ![Hextension screenshot](Screen-Shot-2017-06-07.png)
 
