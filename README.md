@@ -2,15 +2,13 @@
 
 An HTML and JavaScript-based single-player puzzle/strategy game to play in the browser.
 
-Play it [here](http://hexconnex.marthost.uk/), leave feedback on [Itch.io](https://mn3monic.itch.io/hexconnex) or [raise an issue](https://github.com/mn113/hextension2/issues/).
+Play it and leave feedback on [Itch.io](https://mn3monic.itch.io/hexconnex) or [raise an issue](https://github.com/mn113/hextension2/issues/).
 
 ![Hextension screenshot](Screen-Shot-2017-06-07.png)
-
 
 ## Purpose
 
 This repo is non-commercial and is provided as-is for no other purpose than entertainment, education and curiosity. Fork it, play with it, inspect it, but don't do anything that depends on it.
-
 
 ## Technologies used
 
@@ -24,14 +22,13 @@ This repo is non-commercial and is provided as-is for no other purpose than ente
 * [Express.js](http://expressjs.com/) - serves the highscores API
 * [node-persist](https://github.com/simonlast/node-persist) - a lightweight data-store for the highscores
 
-
 ## Installing
 
 ### Easy way (frontend only)
 
 Running the game with its backend server is not mandatory. In fact you can run the frontend in standalone mode, by editing `static/js/game.js`:
 
-```
+```sh
 var standalone = true;
 ```
 
@@ -43,30 +40,29 @@ Then, just visit `static/index.html` in your web browser.
 
 Node.js is required.
 
-```
+```sh
 npm install
 ```
+
 then
-```
+
+```sh
 node server.js
 ```
-then visit `localhost:3000` in your browser.
 
+then visit `localhost:3000` in your browser.
 
 ## Project status
 
 More or less completed, one or two issues outstanding, these may be addressed with time.
 
-
 ## Contributing
 
 This project is not looking for contributions.
 
-
 ## License
 
 This project is licensed under the MIT License.
-
 
 ## Acknowledgments
 
