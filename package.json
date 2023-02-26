@@ -1,13 +1,16 @@
 {
   "name": "hextension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Hexagon-placing, point-scoring, transportation tile game",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "repository": "https://github.com/mn113/hextension",
+  "engines": {
+    "node": "^18"
+  },
+  "repository": "https://github.com/mn113/hextension2",
   "author": "Martin Nicholson",
   "license": "MIT",
   "dependencies": {
@@ -17,6 +20,6 @@
     "geoip-lite": "^1.2.1",
     "lodash": "^4.17.4",
     "node-persist": "^2.0.11",
-	"serve-favicon": "^2.4.3"
+    "serve-favicon": "^2.4.3"
   }
 }
