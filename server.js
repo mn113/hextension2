@@ -10,7 +10,7 @@ var favicon = require('serve-favicon');
 
 // Static assets to be served:
 app.use(favicon(path.join(__dirname,'static','favicon.ico')));
-app.use(express.static('static'));
+app.use(express.static(path.join(__dirname, 'static')));
 
 // Set up middleware:
 app.use(bodyParser.urlencoded({ extended: false }));	// parse application/x-www-form-urlencoded
@@ -48,7 +48,7 @@ function getHighscores(number = 3) {
 // Convert ip to country code:
 function getCountry(ip) {
 	var geo = geoip.lookup(ip);
-	return geo.country;			// async?
+	return geo && geo.country;			// async?
 }
 
 // Parse the incoming data object and prepare fields for database:
@@ -58,7 +58,7 @@ function prepRequestObject(req) {
 		gameid: req.body.gameID,
 		timestamp: req.body.timestamp,
 		ip: req.body.ip,
-		country: getCountry(req.body.ip),
+		country: /^\d+\.\d+\.\d+\.\d+}$/.test(req.body.ip) && getCountry(req.body.ip) || 'unknown',
 		name: req.body.name,
 		tiles: parseInt(req.body.tiles),	// should be 1 or 19
 		score: parseInt(req.body.score)

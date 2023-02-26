@@ -57,10 +57,12 @@ var myHexGame = (function() {
 		undo: 75,
 		recycle: 225,
 		move: 375
-	}	// special move costs
+	};	// special move costs
+
+	var ip = window.myip || 'unknown';	// should be ready from previous script... maybe
 
 	var user = {
-		ip: myip,	// should be ready from previous script... maybe
+		ip,
 		gameID: new Date().valueOf(),	// unique enough for our purposes
 		name: 'Anonymous',
 		recordCreated: false			// for analytics/io
